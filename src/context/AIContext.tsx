@@ -1,0 +1,272 @@
+import { createContext, useContext, useState, ReactNode } from "react";
+
+// Driver Profile Type
+export interface DriverProfile {
+  id: string;
+  name: string;
+  avatar?: string;
+  isActive: boolean;
+  preferences: {
+    acTemperature: number;
+    seatPosition: {
+      horizontal: number;
+      vertical: number;
+      lumbar: number;
+    };
+    ambientLighting: "off" | "dim" | "medium" | "bright" | "rainbow";
+    steeringWheel: {
+      tilt: number;
+      telescope: number;
+    };
+    mirrors: {
+      driver: number;
+      passenger: number;
+    };
+    sound: {
+      volume: number;
+      equalizer: string;
+    };
+  };
+}
+
+// Face Detection Status
+export interface FaceDetectionStatus {
+  isActive: boolean;
+  detectedProfileId?: string;
+  confidence: number;
+  faceMesh?: {
+    yaw: number;
+    pitch: number;
+    roll: number;
+    landmarks: number;
+  };
+  tracking?: {
+    boundingBox: { x: number; y: number; w: number; h: number };
+    faceId: string;
+    confidence: number;
+    fps: number;
+  };
+}
+
+// Modal States
+export interface ModalStates {
+  telemetryPanel: boolean;
+  telemetryFullscreen: boolean;
+  aiVisionLab: boolean;
+  driverProfile: boolean;
+  vehicleControls: boolean;
+  hazardDialog: boolean;
+  lockDialog: boolean;
+}
+
+// AI Context State
+interface AIContextState {
+  // Driver Management
+  currentProfile: DriverProfile | null;
+  profiles: DriverProfile[];
+  setCurrentProfile: (profile: DriverProfile | null) => void;
+  addProfile: (profile: DriverProfile) => void;
+  updateProfile: (id: string, updates: Partial<DriverProfile>) => void;
+  deleteProfile: (id: string) => void;
+
+  // Vehicle Mode
+  vehicleMode: "fuel" | "ev";
+  setVehicleMode: (mode: "fuel" | "ev") => void;
+
+  // Modal States
+  modals: ModalStates;
+  openModal: (modal: keyof ModalStates) => void;
+  closeModal: (modal: keyof ModalStates) => void;
+  toggleModal: (modal: keyof ModalStates) => void;
+
+  // Driver Monitor State
+  isDriverMonitorMinimized: boolean;
+  setDriverMonitorMinimized: (minimized: boolean) => void;
+
+  // Face Detection
+  faceDetection: FaceDetectionStatus;
+  setFaceDetection: (status: Partial<FaceDetectionStatus>) => void;
+
+  // Theme
+  isDark: boolean;
+  setIsDark: (dark: boolean) => void;
+
+  // Vehicle Controls
+  activeControls: Record<string, boolean>;
+  toggleControl: (key: string) => void;
+  setControl: (key: string, value: boolean) => void;
+
+  // Temperature
+  temperature: number;
+  setTemperature: (temp: number) => void;
+
+  // AI Assistant
+  isVoiceActive: boolean;
+  setVoiceActive: (active: boolean) => void;
+  aiMessages: { id: string; type: "user" | "system"; content: string; timestamp: Date }[];
+  addAIMessage: (type: "user" | "system", content: string) => void;
+
+  // Cache for backend responses
+  apiCache: Record<string, any>;
+  updateCache: (key: string, data: any) => void;
+}
+
+const AIContext = createContext<AIContextState | undefined>(undefined);
+
+export function AIContextProvider({ children }: { children: ReactNode }) {
+  // Default profile
+  const defaultProfile: DriverProfile = {
+    id: "default-1",
+    name: "Alex Driver",
+    isActive: true,
+    preferences: {
+      acTemperature: 22,
+      seatPosition: { horizontal: 50, vertical: 50, lumbar: 50 },
+      ambientLighting: "medium",
+      steeringWheel: { tilt: 50, telescope: 50 },
+      mirrors: { driver: 50, passenger: 50 },
+      sound: { volume: 50, equalizer: "balanced" },
+    },
+  };
+
+  const [currentProfile, setCurrentProfile] = useState<DriverProfile | null>(defaultProfile);
+  const [profiles, setProfiles] = useState<DriverProfile[]>([defaultProfile]);
+  const [vehicleMode, setVehicleMode] = useState<"fuel" | "ev">("fuel");
+  const [modals, setModals] = useState<ModalStates>({
+    telemetryPanel: false,
+    telemetryFullscreen: false,
+    aiVisionLab: false,
+    driverProfile: false,
+    vehicleControls: false,
+    hazardDialog: false,
+    lockDialog: false,
+  });
+  const [isDriverMonitorMinimized, setDriverMonitorMinimized] = useState(false);
+  const [faceDetection, setFaceDetectionState] = useState<FaceDetectionStatus>({
+    isActive: true,
+    confidence: 0.95,
+    faceMesh: { yaw: 0, pitch: 0, roll: 0, landmarks: 468 },
+    tracking: {
+      boundingBox: { x: 0, y: 0, w: 0, h: 0 },
+      faceId: "face-001",
+      confidence: 0.95,
+      fps: 30,
+    },
+  });
+  const [isDark, setIsDark] = useState(false);
+  const [activeControls, setActiveControls] = useState<Record<string, boolean>>({
+    ac: true,
+    seat: false,
+    ambient: true,
+    camera: false,
+    hazard: false,
+    lock: true,
+    wifi: true,
+    more: false,
+  });
+  const [temperature, setTemperature] = useState(22);
+  const [isVoiceActive, setVoiceActive] = useState(false);
+  const [aiMessages, setAIMessages] = useState<
+    { id: string; type: "user" | "system"; content: string; timestamp: Date }[]
+  >([]);
+  const [apiCache, setApiCache] = useState<Record<string, any>>({});
+
+  const addProfile = (profile: DriverProfile) => {
+    setProfiles((prev) => [...prev, profile]);
+  };
+
+  const updateProfile = (id: string, updates: Partial<DriverProfile>) => {
+    setProfiles((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    if (currentProfile?.id === id) {
+      setCurrentProfile((prev) => (prev ? { ...prev, ...updates } : null));
+    }
+  };
+
+  const deleteProfile = (id: string) => {
+    setProfiles((prev) => prev.filter((p) => p.id !== id));
+    if (currentProfile?.id === id) {
+      setCurrentProfile(profiles[0] || null);
+    }
+  };
+
+  const openModal = (modal: keyof ModalStates) => {
+    setModals((prev) => ({ ...prev, [modal]: true }));
+  };
+
+  const closeModal = (modal: keyof ModalStates) => {
+    setModals((prev) => ({ ...prev, [modal]: false }));
+  };
+
+  const toggleModal = (modal: keyof ModalStates) => {
+    setModals((prev) => ({ ...prev, [modal]: !prev[modal] }));
+  };
+
+  const setFaceDetection = (status: Partial<FaceDetectionStatus>) => {
+    setFaceDetectionState((prev) => ({ ...prev, ...status }));
+  };
+
+  const toggleControl = (key: string) => {
+    setActiveControls((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const setControl = (key: string, value: boolean) => {
+    setActiveControls((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const addAIMessage = (type: "user" | "system", content: string) => {
+    setAIMessages((prev) => [
+      ...prev,
+      { id: `msg-${Date.now()}`, type, content, timestamp: new Date() },
+    ]);
+  };
+
+  const updateCache = (key: string, data: any) => {
+    setApiCache((prev) => ({ ...prev, [key]: data }));
+  };
+
+  return (
+    <AIContext.Provider
+      value={{
+        currentProfile,
+        profiles,
+        setCurrentProfile,
+        addProfile,
+        updateProfile,
+        deleteProfile,
+        vehicleMode,
+        setVehicleMode,
+        modals,
+        openModal,
+        closeModal,
+        toggleModal,
+        isDriverMonitorMinimized,
+        setDriverMonitorMinimized,
+        faceDetection,
+        setFaceDetection,
+        isDark,
+        setIsDark,
+        activeControls,
+        toggleControl,
+        setControl,
+        temperature,
+        setTemperature,
+        isVoiceActive,
+        setVoiceActive,
+        aiMessages,
+        addAIMessage,
+        apiCache,
+        updateCache,
+      }}
+    >
+      {children}
+    </AIContext.Provider>
+  );
+}
+
+export function useAI() {
+  const context = useContext(AIContext);
+  if (!context) {
+    throw new Error("useAI must be used within AIContextProvider");
+  }
+  return context;
+}
