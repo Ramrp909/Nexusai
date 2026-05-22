@@ -142,12 +142,12 @@ function AppContent() {
             <AINavigationCenter />
 
             {/* ── RIGHT STACK ── */}
-            <div className="flex flex-col gap-3 min-h-0 overflow-hidden">
+            <div className="flex flex-col gap-2 min-h-0 overflow-hidden">
               {/* VEHICLE STATUS */}
-              <VehicleStatus />
+              <VehicleMetrics />
 
               {/* VEHICLE METRICS */}
-              <VehicleMetrics />
+              <VehicleStatus />
 
               {/* AI ALERTS */}
               <AIAlerts />
