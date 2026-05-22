@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { Bell, User, Sun, Moon, Cloud, Car, Settings, Home, LayoutDashboard, Bot } from "lucide-react";
 import { AIContextProvider, useAI } from "../context/AIContext";
 import NotificationSystem from "./components/NotificationSystem";
+import {
+  motion,
+  AnimatePresence,
+} from "motion/react";
+import emergencyOverlay from "./emergencyOverlay";
 
 // Components
 import DriverMonitor from "./components/DriverMonitor";
@@ -14,6 +19,7 @@ import AIAssistant from "./components/AIAssistant";
 import TelemetryPanel from "./components/TelemetryPanel";
 import AIVisionLab from "./components/AIVisionLab";
 import DriverProfile from "./components/DriverProfile";
+import EmergencyOverlay from "./emergencyOverlay";
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", action: "home" },
@@ -29,6 +35,7 @@ function AppContent() {
   const {
   notifications,
   dismissNotification,
+  showDangerAlert,
 } = useAI();
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
@@ -162,11 +169,15 @@ function AppContent() {
       <TelemetryPanel />
       <AIVisionLab />
       <DriverProfile />
+     <EmergencyOverlay />
+      
       <NotificationSystem
   notifications={notifications}
   onDismiss={dismissNotification}
 />
+
     </div>
+    
   );
 }
 

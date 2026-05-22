@@ -127,6 +127,10 @@ interface AIContextState {
   lookingAway: boolean;
   setLookingAway: (lookingAway: boolean) => void;
 
+  //Danger Alert
+  showDangerAlert: boolean;
+  setShowDangerAlert: (show: boolean) => void;
+
   // AI Assistant
   isVoiceActive: boolean;
   setVoiceActive: (active: boolean) => void;
@@ -183,6 +187,11 @@ const [
 const [
   lookingAway,
   setLookingAway
+] = useState(false);
+
+const [
+  showDangerAlert,
+  setShowDangerAlert,
 ] = useState(false);
 
   const [currentProfile, setCurrentProfile] = useState<DriverProfile | null>(defaultProfile);
@@ -372,6 +381,8 @@ const dismissNotification = (
         notifications,
         addNotification,
         dismissNotification,
+        showDangerAlert,
+        setShowDangerAlert,
       }}
     >
       {children}

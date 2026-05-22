@@ -21,7 +21,7 @@ export default function VehicleMetrics() {
   const metrics = vehicleMode === "fuel" ? FUEL_METRICS : EV_METRICS;
 
   return (
-    <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-4 flex flex-col gap-2 min-h-0">
+    <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-4 flex flex-col gap-1 min-h-0">
       <div className="flex items-center justify-between shrink-0">
         <span className="text-[11px] font-semibold uppercase tracking-wider">
           Vehicle Metrics

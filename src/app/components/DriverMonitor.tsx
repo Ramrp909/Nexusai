@@ -5,6 +5,9 @@ import {
   detectFace,
 } from "../../services/driverMonitor";
 import { useEffect,useRef } from "react";
+import {
+  demoNotifications,
+} from "../components/NotificationSystem";
 
 // const STATUS_CARDS = [
 //   {
@@ -43,6 +46,12 @@ const canvasRef =
   useRef<HTMLCanvasElement>(null);
   const streamRef =
   useRef<MediaStream | null>(null);
+
+  const drowsyTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+
   const {
   setAttentionScore,
   setAttentionStatus,
@@ -54,8 +63,18 @@ const canvasRef =
   headDirection,
   isDrowsy,
   lookingAway,
-
+    addNotification,
+    setShowDangerAlert,
 } = useAI();
+
+const previousDrowsyRef =
+  useRef(false);
+
+const previousLookingAwayRef =
+  useRef(false);
+
+const previousAttentionRef =
+  useRef("");
 
 
   const handleMoreClick = () => {
@@ -281,6 +300,102 @@ useEffect(() => {
     clearInterval(interval);
 
 }, []);
+useEffect(() => {
+
+  /* Drowsiness */
+
+  if (
+    isDrowsy &&
+    !previousDrowsyRef.current
+  ) {
+
+    addNotification({
+      ...demoNotifications
+        .drowsinessDetected,
+    });
+
+  }
+
+  previousDrowsyRef.current =
+    isDrowsy;
+
+  /* Driver Distraction */
+
+  if (
+    lookingAway &&
+    !previousLookingAwayRef.current
+  ) {
+
+    addNotification({
+      ...demoNotifications
+        .distractionWarning,
+    });
+
+  }
+
+  previousLookingAwayRef.current =
+    lookingAway;
+
+  /* Attention Recovery */
+
+  if (
+    attentionStatus ===
+      "Focused" &&
+    previousAttentionRef.current ===
+      "Distracted"
+  ) {
+
+    addNotification({
+      ...demoNotifications
+        .safeDriving,
+    });
+
+  }
+
+  previousAttentionRef.current =
+    attentionStatus;
+
+}, [
+  isDrowsy,
+  lookingAway,
+  attentionStatus,
+]);
+
+useEffect(() => {
+
+  if (isDrowsy) {
+
+    if (!drowsyTimeoutRef.current) {
+
+      drowsyTimeoutRef.current =
+        setTimeout(() => {
+
+          setShowDangerAlert(
+            true
+          );
+
+        }, 4000);
+
+    }
+
+  } else {
+
+    if (drowsyTimeoutRef.current) {
+
+      clearTimeout(
+        drowsyTimeoutRef.current
+      );
+
+      drowsyTimeoutRef.current =
+        null;
+
+    }
+
+    setShowDangerAlert(false);
+
+  }
+
+}, [isDrowsy]);
 
   if (isDriverMonitorMinimized) {
     return (
