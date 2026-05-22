@@ -1,19 +1,138 @@
-import { X, Maximize2, Minimize2, Target, Eye, Camera, Activity, Thermometer, Gauge, Battery, Wind } from "lucide-react";
+import { X, Maximize2, Minimize2,  ShieldCheck,
+  ScanFace,
+  BrainCircuit,
+  Activity,
+  Radar,
+  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind } from "lucide-react";
 import { useAI } from "../../context/AIContext";
 
-const EXTENDED_TELEMETRY = [
-  { icon: Target, title: "AI Scan Status", value: "Active", status: "green" },
-  { icon: Eye, title: "Attention Level", value: "95%", status: "green" },
-  { icon: Camera, title: "Detected Faces", value: "1", status: "green" },
-  { icon: Activity, title: "Posture Quality", value: "Good", status: "green" },
-  { icon: Thermometer, title: "Cabin Temperature", value: "22°C", status: "green" },
-  { icon: Gauge, title: "Engine RPM", value: "3200", status: "yellow" },
-  { icon: Battery, title: "Battery Health", value: "87%", status: "green" },
-  { icon: Wind, title: "Air Quality", value: "Excellent", status: "green" },
-  { icon: Activity, title: "Vibration Sensors", value: "Normal", status: "green" },
-  { icon: Thermometer, title: "Tire Pressure", value: "32 PSI", status: "green" },
-  { icon: Camera, title: "Blind Spot", value: "Clear", status: "green" },
-  { icon: Target, title: "Lane Assist", value: "Engaged", status: "green" },
+// const EXTENDED_TELEMETRY = [
+//   { icon: Target, title: "AI Scan Status", value: "Active", status: "green" },
+//   { icon: Eye, title: "Attention Level", value: "95%", status: "green" },
+//   { icon: Camera, title: "Detected Faces", value: "1", status: "green" },
+//   { icon: Activity, title: "Posture Quality", value: "Good", status: "green" },
+//   { icon: Thermometer, title: "Cabin Temperature", value: "22°C", status: "green" },
+//   { icon: Gauge, title: "Engine RPM", value: "3200", status: "yellow" },
+//   { icon: Battery, title: "Battery Health", value: "87%", status: "green" },
+//   { icon: Wind, title: "Air Quality", value: "Excellent", status: "green" },
+//   { icon: Activity, title: "Vibration Sensors", value: "Normal", status: "green" },
+//   { icon: Thermometer, title: "Tire Pressure", value: "32 PSI", status: "green" },
+//   { icon: Camera, title: "Blind Spot", value: "Clear", status: "green" },
+//   { icon: Target, title: "Lane Assist", value: "Engaged", status: "green" },
+// ];
+
+
+
+
+export default function TelemetryPanel() {
+
+  
+  const { modals, closeModal, toggleModal,
+
+  attentionScore,
+
+  attentionStatus,
+
+  headDirection,
+
+  isDrowsy,
+
+  lookingAway,
+
+   } = useAI();
+   const EXTENDED_TELEMETRY = [
+
+  {
+    title: "AI Confidence",
+
+    value: `${attentionScore}%`,
+
+    status:
+      attentionScore > 80
+        ? "Stable"
+        : attentionScore > 50
+        ? "Warning"
+        : "Critical",
+
+    icon: BrainCircuit,
+  },
+
+  {
+    title: "Face Tracking",
+
+    value:
+      lookingAway
+        ? "Unstable"
+        : "Locked",
+
+    status:
+      lookingAway
+        ? "Warning"
+        : "Stable",
+
+    icon: ScanFace,
+  },
+
+  {
+    title: "Head Pose",
+
+    value: headDirection,
+
+    status:
+      headDirection === "Center"
+        ? "Stable"
+        : "Tracking",
+
+    icon: Radar,
+  },
+
+  {
+    title: "Driver State",
+
+    value:
+      isDrowsy
+        ? "Drowsy"
+        : attentionStatus,
+
+    status:
+      isDrowsy
+        ? "Critical"
+        : "Stable",
+
+    icon: Eye,
+  },
+
+  {
+    title: "AI Pipeline",
+
+    value:
+      isDrowsy
+        ? "Escalated"
+        : "Operational",
+
+    status:
+      isDrowsy
+        ? "Critical"
+        : "Stable",
+
+    icon: Activity,
+  },
+
+  {
+    title: "Monitoring",
+
+    value:
+      attentionStatus,
+
+    status:
+      attentionStatus ===
+      "Focused"
+        ? "Stable"
+        : "Warning",
+
+    icon: ShieldCheck,
+  },
+
 ];
 
 const STATUS_COLORS = {
@@ -37,8 +156,58 @@ const STATUS_COLORS = {
   },
 };
 
-export default function TelemetryPanel() {
-  const { modals, closeModal, toggleModal } = useAI();
+
+const telemetryStyles = {
+
+  Stable: {
+
+    text:
+      "text-emerald-400",
+
+    border:
+      "border-emerald-500/15",
+
+    bg:
+      "bg-emerald-500/10",
+  },
+
+  Warning: {
+
+    text:
+      "text-yellow-400",
+
+    border:
+      "border-yellow-500/15",
+
+    bg:
+      "bg-yellow-500/10",
+  },
+
+  Critical: {
+
+    text:
+      "text-red-400",
+
+    border:
+      "border-red-500/15",
+
+    bg:
+      "bg-red-500/10",
+  },
+
+  Tracking: {
+
+    text:
+      "text-blue-400",
+
+    border:
+      "border-blue-500/15",
+
+    bg:
+      "bg-blue-500/10",
+  },
+
+};
   const isOpen = modals.telemetryPanel;
   const isFullscreen = modals.telemetryFullscreen;
 
@@ -53,6 +222,7 @@ export default function TelemetryPanel() {
     closeModal("telemetryFullscreen");
   };
 
+ 
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col">
@@ -87,7 +257,12 @@ export default function TelemetryPanel() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
             {EXTENDED_TELEMETRY.map((item, i) => {
               const Icon = item.icon;
-              const colors = STATUS_COLORS[item.status as keyof typeof STATUS_COLORS];
+              // const colors = STATUS_COLORS[item.status as keyof typeof STATUS_COLORS];
+              const colors =
+  telemetryStyles[
+    item.status as keyof typeof telemetryStyles
+  ] ??
+  telemetryStyles.Stable;
               return (
                 <div
                   key={i}
@@ -95,7 +270,7 @@ export default function TelemetryPanel() {
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <Icon className={`size-4 ${colors.text}`} />
-                    <div className={`size-2 rounded-full ${colors.dot}`} />
+                    <div className={`size-2 rounded-full ${STATUS_COLORS.green.dot}`} />
                   </div>
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
                     {item.title}
@@ -112,11 +287,40 @@ export default function TelemetryPanel() {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-end"
+      className="fixed
+
+top-[80px]
+left-[38%]
+
+h-[66vh]
+
+w-[500px]
+
+z-50  flex items-center justify-end "
       onClick={handleClose}
     >
       <div
-        className="h-full w-full max-w-md bg-card border-l border-border shadow-2xl flex flex-col animate-slide-in-right"
+       className="
+  h-full
+  w-full
+
+  bg-card/95
+
+  border border-border/30
+
+  rounded-[32px]
+
+  shadow-2xl
+
+  flex
+  flex-col
+
+  overflow-hidden
+
+  animate-slide-in-right
+
+  backdrop-blur-xl
+"
         onClick={(e) => e.stopPropagation()}
         style={{
           animation: "slideInRight 300ms ease-out",
@@ -149,15 +353,81 @@ export default function TelemetryPanel() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        
+          <div
+  className="
+    flex-1
+
+    overflow-y-auto
+
+    p-4
+
+    grid
+    grid-cols-2
+
+    auto-rows-min
+
+    gap-3
+  "
+>
           {EXTENDED_TELEMETRY.map((item, i) => {
             const Icon = item.icon;
-            const colors = STATUS_COLORS[item.status as keyof typeof STATUS_COLORS];
+           
+            const colors =
+  telemetryStyles[
+    item.status as keyof typeof telemetryStyles
+  ] ??
+  telemetryStyles.Stable;
+
             return (
               <div
                 key={i}
-                className={`rounded-xl border ${colors.border} ${colors.bg} p-3 flex items-center gap-3`}
+                // className={`rounded-xl border ${colors.border} ${colors.bg} p-3 flex items-center gap-3`}
+                className={`
+  relative
+
+  rounded-xl
+
+  border
+
+  ${colors.border}
+  ${colors.bg}
+
+  p-3
+
+  flex
+  items-center
+  gap-3
+
+  overflow-hidden
+`}
+                
               >
+                {/* Active Glow Line */}
+<div
+  className={`
+    absolute
+
+    left-0
+    top-0
+    bottom-0
+
+    w-[2px]
+
+    ${
+      colors.text.includes("green")
+        ? "bg-green-400"
+
+        : colors.text.includes("red")
+        ? "bg-red-400"
+
+        : colors.text.includes("yellow")
+        ? "bg-yellow-400"
+
+        : "bg-blue-500 dark:bg-emerald-400"
+    }
+  `}
+/>
                 <Icon className={`size-5 shrink-0 ${colors.text}`} />
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -167,7 +437,7 @@ export default function TelemetryPanel() {
                     {item.value}
                   </div>
                 </div>
-                <div className={`size-2 rounded-full ${colors.dot} shrink-0`} />
+                <div className={`size-2 rounded-full ${STATUS_COLORS.green.dot} shrink-0`} />
               </div>
             );
           })}

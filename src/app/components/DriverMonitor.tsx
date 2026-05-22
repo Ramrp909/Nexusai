@@ -9,32 +9,6 @@ import {
   demoNotifications,
 } from "../components/NotificationSystem";
 
-// const STATUS_CARDS = [
-//   {
-//     label: "AI Scan",
-//     icon: Target,
-//     value: "Active",
-//     color: "text-primary",
-//   },
-//   {
-//     label: "Attention",
-//     icon: Eye,
-//     value: "95%",
-//     color: "text-green-500",
-//   },
-//   {
-//     label: "Faces",
-//     icon: Camera,
-//     value: "1",
-//     color: "text-primary",
-//   },
-//   {
-//     label: "Posture",
-//     icon: Activity,
-//     value: "Good",
-//     color: "text-green-500",
-//   },
-// ];
 
 
 export default function DriverMonitor() {
@@ -65,6 +39,7 @@ const canvasRef =
   lookingAway,
     addNotification,
     setShowDangerAlert,
+    modals,closeModal
 } = useAI();
 
 const previousDrowsyRef =
@@ -77,9 +52,27 @@ const previousAttentionRef =
   useRef("");
 
 
+ 
+
   const handleMoreClick = () => {
-    openModal("telemetryPanel");
-  };
+
+  if (
+    modals.telemetryPanel
+  ) {
+
+    closeModal(
+      "telemetryPanel"
+    );
+
+  } else {
+
+    openModal(
+      "telemetryPanel"
+    );
+
+  }
+
+};
 const liveStatusCards = [
 
   {
@@ -673,15 +666,113 @@ useEffect(() => {
         {displayCards.map((c, i) => {
           const Icon = c.icon;
           return (
-            <div key={i} className="rounded-xl border border-border/30 bg-muted/40 p-2.5">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Icon className={`size-3 ${c.color}`} />
-                <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                  {c.label}
-                </span>
-              </div>
-              <div className={`text-sm font-semibold ${c.color}`}>{c.value}</div>
-            </div>
+            // <div key={i} className="rounded-xl border border-border/30 bg-muted/40 p-2.5">
+              
+            //   <div className="flex items-center gap-1.5 mb-1">
+            //     <Icon className={`size-3 ${c.color}`} />
+            //     <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
+            //       {c.label}
+            //     </span>
+            //   </div>
+            //   <div className={`text-sm font-semibold ${c.color}`}>{c.value}</div>
+            // </div>
+            <div
+  key={i}
+  className="
+    relative
+
+    flex
+    items-center
+    gap-2
+
+    rounded-xl
+
+    border
+    border-border/30
+
+    bg-muted/40
+
+    px-3
+    py-2
+
+    overflow-hidden
+  "
+>
+
+  {/* Active Glow Line */}
+  <div
+    className={`
+      absolute
+
+      left-0
+      top-0
+      bottom-0
+
+      w-[2px]
+
+      ${
+        c.color.includes("green")
+          ? "bg-green-400"
+
+          : c.color.includes("red")
+          ? "bg-red-400"
+
+          : c.color.includes("yellow")
+          ? "bg-yellow-400"
+
+          : "bg-blue-500 dark:bg-emerald-400"
+      }
+    `}
+  />
+
+  {/* Icon */}
+  <Icon
+    className={`
+      size-3.5
+
+      shrink-0
+
+      ${c.color}
+    `}
+  />
+
+  {/* Content */}
+  <div className="
+    min-w-0
+    flex-1
+  ">
+
+    {/* Label */}
+    <div className="
+      text-[9px]
+
+      uppercase
+      tracking-wide
+
+      text-muted-foreground
+    ">
+      {c.label}
+    </div>
+
+    {/* Value */}
+    <div
+      className={`
+        text-sm
+        font-semibold
+
+        truncate
+
+        ${c.color}
+      `}
+    >
+
+      {c.value}
+
+    </div>
+
+  </div>
+
+</div>
           );
         })}
         {/* MORE Card */}
