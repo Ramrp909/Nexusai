@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Bell, User, Sun, Moon, Cloud, Car, Settings, Home, LayoutDashboard, Bot } from "lucide-react";
 import { AIContextProvider, useAI } from "../context/AIContext";
+import NotificationSystem from "./components/NotificationSystem";
 
 // Components
 import DriverMonitor from "./components/DriverMonitor";
@@ -25,7 +26,10 @@ const NAV_ITEMS = [
 function AppContent() {
   const { isDark, setIsDark, openModal } = useAI();
   const [activeNav, setActiveNav] = useState(1);
-
+  const {
+  notifications,
+  dismissNotification,
+} = useAI();
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
@@ -158,6 +162,10 @@ function AppContent() {
       <TelemetryPanel />
       <AIVisionLab />
       <DriverProfile />
+      <NotificationSystem
+  notifications={notifications}
+  onDismiss={dismissNotification}
+/>
     </div>
   );
 }

@@ -1,48 +1,286 @@
 import { Camera, Eye, Target, Activity, Minus, Settings, ChevronRight, Maximize2 } from "lucide-react";
 import { useAI } from "../../context/AIContext";
 import MusicPlayer from "./MusicPlayer";
+import {
+  detectFace,
+} from "../../services/driverMonitor";
+import { useEffect,useRef } from "react";
 
-const STATUS_CARDS = [
-  {
-    label: "AI Scan",
-    icon: Target,
-    value: "Active",
-    color: "text-primary",
-  },
-  {
-    label: "Attention",
-    icon: Eye,
-    value: "95%",
-    color: "text-green-500",
-  },
-  {
-    label: "Faces",
-    icon: Camera,
-    value: "1",
-    color: "text-primary",
-  },
-  {
-    label: "Posture",
-    icon: Activity,
-    value: "Good",
-    color: "text-green-500",
-  },
-];
+// const STATUS_CARDS = [
+//   {
+//     label: "AI Scan",
+//     icon: Target,
+//     value: "Active",
+//     color: "text-primary",
+//   },
+//   {
+//     label: "Attention",
+//     icon: Eye,
+//     value: "95%",
+//     color: "text-green-500",
+//   },
+//   {
+//     label: "Faces",
+//     icon: Camera,
+//     value: "1",
+//     color: "text-primary",
+//   },
+//   {
+//     label: "Posture",
+//     icon: Activity,
+//     value: "Good",
+//     color: "text-green-500",
+//   },
+// ];
+
 
 export default function DriverMonitor() {
   const { isDriverMonitorMinimized, setDriverMonitorMinimized, openModal } = useAI();
+  const videoRef =
+  useRef<HTMLVideoElement>(null);
+
+const canvasRef =
+  useRef<HTMLCanvasElement>(null);
+  const streamRef =
+  useRef<MediaStream | null>(null);
+  const {
+  setAttentionScore,
+  setAttentionStatus,
+  setHeadDirection,
+  setIsDrowsy,
+  setLookingAway,
+  attentionScore,
+  attentionStatus,
+  headDirection,
+  isDrowsy,
+  lookingAway,
+
+} = useAI();
+
 
   const handleMoreClick = () => {
     openModal("telemetryPanel");
   };
+const liveStatusCards = [
 
-  const displayCards = STATUS_CARDS.slice(0, 3);
+  {
+    label: "AI Status",
+    icon: Target,
+
+    value:
+      attentionStatus === "Focused"
+        ? "Active"
+        : attentionStatus,
+
+    color:
+      attentionStatus === "Focused"
+        ? "text-emerald-400"
+        : attentionStatus === "Distracted"
+        ? "text-yellow-400"
+        : "text-red-400",
+  },
+
+  {
+    label: "Attention",
+    icon: Eye,
+
+    value: `${attentionScore}%`,
+
+    color:
+      attentionScore > 80
+        ? "text-emerald-400"
+        : attentionScore > 50
+        ? "text-yellow-400"
+        : "text-red-400",
+  },
+  {
+    label: "Driver State",
+    icon: Activity,
+
+    value:
+      isDrowsy
+        ? "Drowsy"
+        : lookingAway
+        ? "Distracted"
+        : "Normal",
+
+    color:
+      isDrowsy
+        ? "text-red-400"
+        : lookingAway
+        ? "text-yellow-400"
+        : "text-emerald-400",
+  },
+
+  {
+    label: "Head Pose",
+    icon: Camera,
+
+    value: headDirection,
+
+    color:
+      headDirection === "Center"
+        ? "text-emerald-400"
+        : "text-yellow-400",
+  },
+
+  
+
+];
+  const displayCards = liveStatusCards.slice(0, 3);
   const moreCard = {
     label: "More",
     icon: ChevronRight,
-    value: `+${STATUS_CARDS.length - 3}`,
+    value: `+${liveStatusCards.length - 3}`,
     color: "text-primary",
   };
+
+  useEffect(() => {
+
+  async function startWebcam() {
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+
+      streamRef.current =
+        stream;
+
+      if (videoRef.current) {
+
+        videoRef.current.srcObject =
+          stream;
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Webcam access failed",
+        error
+      );
+
+    }
+
+  }
+
+
+
+    startWebcam();
+
+  
+
+  return () => {
+
+    if (streamRef.current) {
+
+    
+
+      streamRef.current = null;
+
+    }
+
+  };
+
+}, [isDriverMonitorMinimized]);
+
+useEffect(() => {
+
+  const interval =
+    setInterval(async () => {
+     
+      if (
+        !videoRef.current ||
+        !canvasRef.current
+      ) return;
+
+      const video =
+        videoRef.current;
+
+      const canvas =
+        canvasRef.current;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      canvas.width =
+        video.videoWidth;
+
+      canvas.height =
+        video.videoHeight;
+
+      ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      canvas.toBlob(
+        async (blob) => {
+
+          if (!blob) return;
+
+          const file =
+            new File(
+              [blob],
+              "frame.jpg",
+              {
+                type: "image/jpeg",
+              }
+            );
+
+          try {
+
+            const result =
+              await detectFace(file);
+
+            setAttentionScore(
+              result.attentionScore
+            );
+
+            setAttentionStatus(
+              result.attentionStatus
+            );
+
+            setHeadDirection(
+              result.headDirection
+            );
+
+            setIsDrowsy(
+              result.isDrowsy
+            );
+
+            setLookingAway(
+              result.lookingAway
+            );
+
+          } catch (error) {
+
+            console.error(
+              "Driver monitor error",
+              error
+            );
+
+          }
+
+        },
+        "image/jpeg",
+        0.7
+      );
+
+    }, 1500);
+
+  return () =>
+    clearInterval(interval);
+
+}, []);
 
   if (isDriverMonitorMinimized) {
     return (
@@ -99,6 +337,20 @@ export default function DriverMonitor() {
 
         {/* Music Player */}
         <MusicPlayer />
+        {/* Hidden AI Processing Elements */}
+
+<video
+  ref={videoRef}
+  autoPlay
+  playsInline
+  muted
+  className="hidden"
+/>
+
+<canvas
+  ref={canvasRef}
+  className="hidden"
+/>
       </div>
     );
   }
@@ -139,7 +391,7 @@ export default function DriverMonitor() {
       {/* Camera feed */}
       <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl bg-zinc-950 border border-border/20">
         {/* Detection frame */}
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative">
             <Camera className="size-14 text-zinc-700" />
             <div className="absolute -inset-10 border-2 border-primary/50 rounded-lg">
@@ -149,7 +401,146 @@ export default function DriverMonitor() {
               <div className="absolute -bottom-px -right-px size-3 border-b-2 border-r-2 border-primary rounded-br" />
             </div>
           </div>
-        </div>
+        </div> */}
+        <div className="absolute inset-0 flex items-center justify-center">
+        <Camera className="size-14 text-zinc-700" />
+        {/* Live Webcam Feed */}
+<video
+  ref={videoRef}
+  autoPlay
+  playsInline
+  muted
+
+  className="
+    absolute inset-0
+
+    w-full
+    h-full
+
+    object-cover
+  "
+/>
+
+{/* AI Overlay Layer */}
+<div className="
+  absolute inset-0
+
+  pointer-events-none
+">
+  <div className="
+  absolute
+  top-3
+  left-3
+
+  flex
+  flex-wrap
+  gap-2
+">
+
+  {/* Attention Status */}
+  <div className={`
+    px-3
+    py-1.5
+
+    rounded-full
+
+    text-[10px]
+    uppercase
+    tracking-wide
+
+    backdrop-blur-md
+
+    border
+
+    ${
+      attentionStatus === "Focused"
+        ? `
+          bg-emerald-400/15
+          text-emerald-300
+          border-emerald-400/20
+        `
+        : attentionStatus === "Distracted"
+        ? `
+          bg-yellow-400/15
+          text-yellow-300
+          border-yellow-400/20
+        `
+        : `
+          bg-red-400/15
+          text-red-300
+          border-red-400/20
+        `
+    }
+  `}>
+
+    {attentionStatus}
+
+  </div>
+
+  {/* Head Direction */}
+  <div className="
+    px-3
+    py-1.5
+
+    rounded-full
+
+    text-[10px]
+    uppercase
+    tracking-wide
+
+    backdrop-blur-md
+
+    border border-white/10
+
+    bg-black/30
+
+    text-white/80
+  ">
+
+    {headDirection}
+
+  </div>
+
+  {/* Attention Score */}
+  <div className="
+    px-3
+    py-1.5
+
+    rounded-full
+
+    text-[10px]
+    uppercase
+    tracking-wide
+
+    backdrop-blur-md
+
+    border border-white/10
+
+    bg-black/30
+
+    text-white/80
+  ">
+
+    {attentionScore}%
+
+  </div>
+
+</div>
+
+  {/* Future:
+      YOLO boxes
+      face mesh
+      telemetry overlays
+  */}
+
+</div>
+
+{/* Hidden Processing Canvas */}
+<canvas
+  ref={canvasRef}
+  className="hidden"
+/>
+</div>
         {/* Recording dot */}
         <div className="absolute top-2.5 right-3 flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-red-500 animate-pulse" />
@@ -190,6 +581,9 @@ export default function DriverMonitor() {
           <div className="text-sm font-semibold text-primary">View All</div>
         </button>
       </div>
+      {/* Hidden AI Processing Elements */}
+
+
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import NotificationSystem, { Notification } from "../app/components/NotificationSystem";
 
 // Driver Profile Type
 export interface DriverProfile {
@@ -90,6 +91,12 @@ interface AIContextState {
   // Theme
   isDark: boolean;
   setIsDark: (dark: boolean) => void;
+  
+  //Notifications
+  notifications: Notification[];
+  addNotification: (notification: Omit<Notification, "id">) => void;
+  dismissNotification: (id: string) => void;
+
 
   // Vehicle Controls
   activeControls: Record<string, boolean>;
@@ -99,6 +106,26 @@ interface AIContextState {
   // Temperature
   temperature: number;
   setTemperature: (temp: number) => void;
+
+  //Attention Score
+  attentionScore: number;
+  setAttentionScore: (score: number) => void;
+
+  //Attention Status
+  attentionStatus: string;
+  setAttentionStatus: (status: string) => void;
+
+  //Head Direction
+  headDirection: string;
+  setHeadDirection: (direction: string) => void;
+
+  //Drowsiness
+  isDrowsy: boolean;
+  setIsDrowsy: (drowsy: boolean) => void;
+
+  //Looking Away
+  lookingAway: boolean;
+  setLookingAway: (lookingAway: boolean) => void;
 
   // AI Assistant
   isVoiceActive: boolean;
@@ -128,6 +155,35 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
       sound: { volume: 50, equalizer: "balanced" },
     },
   };
+  const [
+  notifications,
+  setNotifications,
+] = useState<Notification[]>([]);
+
+  const [
+  attentionScore,
+  setAttentionScore
+] = useState(100);
+
+const [
+  attentionStatus,
+  setAttentionStatus
+] = useState("Focused");
+
+const [
+  headDirection,
+  setHeadDirection
+] = useState("Center");
+
+const [
+  isDrowsy,
+  setIsDrowsy
+] = useState(false);
+
+const [
+  lookingAway,
+  setLookingAway
+] = useState(false);
 
   const [currentProfile, setCurrentProfile] = useState<DriverProfile | null>(defaultProfile);
   const [profiles, setProfiles] = useState<DriverProfile[]>([defaultProfile]);
@@ -153,6 +209,53 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
       fps: 30,
     },
   });
+
+  const addNotification = (
+  notification: Omit<
+    Notification,
+    "id"
+  >
+) => {
+
+  const id =
+    Math.random()
+      .toString(36)
+      .substring(7);
+
+  const newNotification = {
+    ...notification,
+    id,
+  };
+
+  setNotifications(prev => [
+    ...prev,
+    newNotification,
+  ]);
+
+  if (notification.duration) {
+
+    setTimeout(() => {
+
+      dismissNotification(id);
+
+    }, notification.duration);
+
+  }
+  
+
+};
+const dismissNotification = (
+  id: string
+) => {
+
+  setNotifications(prev =>
+    prev.filter(
+      notification =>
+        notification.id !== id
+    )
+  );
+
+};
   const [isDark, setIsDark] = useState(false);
   const [activeControls, setActiveControls] = useState<Record<string, boolean>>({
     ac: true,
@@ -256,6 +359,19 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
         addAIMessage,
         apiCache,
         updateCache,
+        attentionScore,
+        setAttentionScore,
+        attentionStatus,
+        setAttentionStatus,
+        headDirection,
+        setHeadDirection,
+        isDrowsy,
+        setIsDrowsy,
+        lookingAway,
+        setLookingAway, 
+        notifications,
+        addNotification,
+        dismissNotification,
       }}
     >
       {children}
