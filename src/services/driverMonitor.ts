@@ -29,6 +29,8 @@ export interface DriverMonitorResponse {
     isDrowsy: boolean;
 
     attentionStatus: string;
+    blinkRate :number;
+    gazeStability: number;
 
     headDirection: string;
 

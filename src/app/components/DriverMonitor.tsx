@@ -29,10 +29,14 @@ const canvasRef =
   const {
   setAttentionScore,
   setAttentionStatus,
+  setBlinkRate,
+  blinkRate,
   setHeadDirection,
   setIsDrowsy,
   setLookingAway,
   attentionScore,
+  gazeStability,
+  setGazeStability,
   attentionStatus,
   headDirection,
   isDrowsy,
@@ -244,6 +248,9 @@ if (
            setAttentionScore(
   driver.attentionScore
 );
+
+setBlinkRate(driver.blinkRate);
+setGazeStability(driver.gazeStability);
 
 setAttentionStatus(
   driver.attentionStatus

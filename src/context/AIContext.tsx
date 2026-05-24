@@ -111,6 +111,14 @@ interface AIContextState {
   attentionScore: number;
   setAttentionScore: (score: number) => void;
 
+  //BlinkRate Score
+  blinkRate : number;
+  setBlinkRate: (score: number) => void;
+
+  //gazeStability
+  gazeStability: number;
+  setGazeStability: (score: number) => void;
+
   //Attention Status
   attentionStatus: string;
   setAttentionStatus: (status: string) => void;
@@ -190,6 +198,9 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   attentionScore,
   setAttentionScore
 ] = useState(100);
+
+const [blinkRate,setBlinkRate] = useState(100);
+const [gazeStability,setGazeStability] = useState(100)
 
 const [
   attentionStatus,
@@ -421,6 +432,10 @@ const dismissNotification = (
         updateCache,
         attentionScore,
         setAttentionScore,
+        blinkRate,
+        setBlinkRate,
+        gazeStability,
+        setGazeStability,
         attentionStatus,
         setAttentionStatus,
         headDirection,

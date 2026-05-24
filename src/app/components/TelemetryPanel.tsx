@@ -3,7 +3,8 @@ import { X, Maximize2, Minimize2,  ShieldCheck,
   BrainCircuit,
   Activity,
   Radar,
-  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind } from "lucide-react";
+  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind, 
+  icons} from "lucide-react";
 import { useAI } from "../../context/AIContext";
 
 // const EXTENDED_TELEMETRY = [
@@ -38,6 +39,7 @@ export default function TelemetryPanel() {
   isDrowsy,
 
   lookingAway,
+  blinkRate,
 
    } = useAI();
    const EXTENDED_TELEMETRY = [
@@ -132,6 +134,12 @@ export default function TelemetryPanel() {
 
     icon: ShieldCheck,
   },
+  {title: "BlinkRate", value: blinkRate, status: blinkRate > 2
+        ? "Stable"
+        : attentionScore > 4
+        ? "Warning"
+        : "Critical",
+        icon: Eye, }
 
 ];
 

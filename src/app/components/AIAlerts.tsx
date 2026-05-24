@@ -4,24 +4,7 @@ import { CheckCircle, AlertTriangle, X,LucideIcon,Activity,
   Coffee,
   User, } from "lucide-react";
 
-
-// const ALERT_STYLES = {
-//   green: {
-//     wrap: "bg-green-500/10 border-green-500/20",
-//     icon: "text-green-500",
-//     badge: "bg-green-500/20 text-green-600 dark:text-green-400",
-//   },
-//   amber: {
-//     wrap: "bg-amber-500/10 border-amber-400/25",
-//     icon: "text-amber-400",
-//     badge: "bg-amber-500/20 text-amber-600 dark:text-amber-400",
-//   },
-//   red: {
-//     wrap: "bg-red-500/10 border-red-500/20",
-//     icon: "text-red-500",
-//     badge: "bg-red-500/20 text-red-600 dark:text-red-400",
-//   },
-// };
+import { useAI } from "../../context/AIContext";
 
 type AlertPriority =
   | "critical"
@@ -49,125 +32,86 @@ interface AIAlert {
 }
 
 export default function AIAlerts() {
-  // const [alerts, setAlerts] = useState([
-  //   {
-  //     id: 1,
-  //     icon: CheckCircle,
-  //     title: "AI Assistant Active",
-  //     message: "All systems operational",
-  //     badge: "OK",
-  //     color: "green" as const,
-  //   },
-  //   {
-  //     id: 2,
-  //     icon: AlertTriangle,
-  //     title: "Rest Suggestion",
-  //     message: "Consider a break in 45 min",
-  //     badge: "Warn",
-  //     color: "amber" as const,
-  //   },
-  //   {
-  //     id: 3,
-  //     icon: AlertTriangle,
-  //     title: "Blind Spot Detected",
-  //     message: "Vehicle on left rear",
-  //     badge: "Alert",
-  //     color: "red" as const,
-  //   },
-  // ]);
-  const INITIAL_ALERTS: AIAlert[] = [
+//   const INITIAL_ALERTS: AIAlert[] = [
 
-  {
-    id: "1",
+//   {
+//     id: "1",
 
-    title: "AI Monitoring Active",
+//     title: "AI Monitoring Active",
 
-    message:
-      "Driver telemetry operating normally.",
+//     message:
+//       "Driver telemetry operating normally.",
 
-    priority: "monitoring",
+//     priority: "monitoring",
 
-    active: false,
+//     active: false,
 
-    timestamp: "now",
+//     timestamp: "now",
 
-    icon: Activity,
-  },
+//     icon: Activity,
+//   },
 
-  {
-    id: "2",
+//   {
+//     id: "2",
 
-    title: "Driver Profile Loaded",
+//     title: "Driver Profile Loaded",
 
-    message:
-      "Adaptive cockpit preferences restored.",
+//     message:
+//       "Adaptive cockpit preferences restored.",
 
-    priority: "info",
+//     priority: "info",
 
-    active: false,
+//     active: false,
 
-    timestamp: "2m",
+//     timestamp: "2m",
 
-    icon: User,
-  },
+//     icon: User,
+//   },
 
-  {
-    id: "3",
+//   {
+//     id: "3",
 
-    title: "Rest Recommendation",
+//     title: "Rest Recommendation",
 
-    message:
-      "Extended driving detected. Consider a short break.",
+//     message:
+//       "Extended driving detected. Consider a short break.",
 
-    priority: "recommendation",
+//     priority: "recommendation",
 
-    active: true,
+//     active: true,
 
-    timestamp: "5m",
+//     timestamp: "5m",
 
-    icon: Coffee,
-  },
+//     icon: Coffee,
+//   },
 
-  {
-    id: "4",
+//   {
+//     id: "4",
 
-    title: "Blind Spot Activity",
+//     title: "Blind Spot Activity",
 
-    message:
-      "Vehicle detected in adjacent lane.",
+//     message:
+//       "Vehicle detected in adjacent lane.",
 
-    priority: "warning",
+//     priority: "warning",
 
-    active: true,
+//     active: true,
 
-    timestamp: "now",
+//     timestamp: "now",
 
-    icon: AlertTriangle,
-  },
+//     icon: AlertTriangle,
+//   },
 
-];
-const [alerts, setAlerts] =
-  useState<AIAlert[]>(
-    INITIAL_ALERTS
-  );
-// const priorityStyles = {
+// ];
+// const [alerts, setAlerts] =
+//   useState<AIAlert[]>(
+//     INITIAL_ALERTS
+//   );
 
-//   critical:
-//     "text-red-400",
+  const {
+  backendEvents
+} = useAI();
 
-//   warning:
-//     "text-yellow-400",
-
-//   info:
-//     "text-blue-500 dark:text-emerald-400",
-
-//   recommendation:
-//     "text-purple-400",
-
-//   monitoring:
-//     "text-muted-foreground",
-
-// };
 const priorityStyles = {
 
   critical: {
@@ -265,50 +209,123 @@ const priorityStyles = {
   },
 
 };
-const pushAlert = (
-  newAlert: AIAlert
-) => {
+// const pushAlert = (
+//   newAlert: AIAlert
+// ) => {
 
-  setAlerts(prev => {
+//   setAlerts(prev => {
 
-    const updated = [
-      newAlert,
-      ...prev,
-    ];
+//     const updated = [
+//       newAlert,
+//       ...prev,
+//     ];
 
-    if (
-      updated.length <= 4
-    ) {
+//     if (
+//       updated.length <= 4
+//     ) {
 
-      return updated;
+//       return updated;
 
-    }
+//     }
 
-    const inactiveIndex =
-      updated.findIndex(
-        alert =>
-          !alert.active
-      );
+//     const inactiveIndex =
+//       updated.findIndex(
+//         alert =>
+//           !alert.active
+//       );
 
-    if (
-      inactiveIndex !== -1
-    ) {
+//     if (
+//       inactiveIndex !== -1
+//     ) {
 
-      updated.splice(
-        inactiveIndex,
-        1
-      );
+//       updated.splice(
+//         inactiveIndex,
+//         1
+//       );
 
-      return updated;
-    }
+//       return updated;
+//     }
 
-    updated.pop();
+//     updated.pop();
 
-    return updated;
+//     return updated;
 
-  });
+//   });
 
-};
+// };
+
+
+const alerts: AIAlert[] =
+  backendEvents.map(
+
+    (
+      event,
+      index
+    ) => ({
+
+      id: String(index),
+
+      title: event.type,
+
+      message:
+
+        event.severity ===
+        "critical"
+
+          ? "Immediate driver intervention required."
+
+        : event.severity ===
+          "warning"
+
+          ? "Driver attention monitoring active."
+
+        : event.severity ===
+          "info"
+
+          ? "Behavioral telemetry update."
+
+        : "Vehicle AI operating normally.",
+
+      priority:
+
+        event.severity ===
+        "critical"
+
+          ? "critical"
+
+        : event.severity ===
+          "warning"
+
+          ? "warning"
+
+        : event.severity ===
+          "info"
+
+          ? "info"
+
+        : "monitoring",
+
+      active:
+        event.severity !==
+        "monitoring",
+
+      timestamp: "now",
+
+      icon:
+
+        event.severity ===
+        "critical"
+
+          ? AlertTriangle
+
+        : event.severity ===
+          "warning"
+
+          ? AlertTriangle
+
+        : CheckCircle,
+    })
+  );
 
   return (
     <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-2.5 flex flex-col gap-1 min-h-0 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
@@ -343,43 +360,6 @@ const pushAlert = (
           return (
             <div
               key={alert.id}
-              // className={`flex items-center gap-2 rounded-xl border p-2 ${s.wrap}
-              // `}
-//               className={`
-//   flex
-//   items-center
-//   gap-2
-
-//   rounded-xl
-
-//   border
-
-//   p-2
-
-//   transition-all
-//   duration-300
-
-//   ${
-//     alert.active
-//       ? `
-//         opacity-100
-
-//         bg-card/90
-
-//         border-border/40
-
-//         shadow-[0_0_18px_rgba(59,130,246,0.08)]
-//         dark:shadow-[0_0_20px_rgba(16,185,129,0.08)]
-//       `
-//       : `
-//         opacity-80
-
-//         bg-card/40
-
-//         border-border/10
-//       `
-//   }
-// `}
 className={`
   flex
   items-center
@@ -400,16 +380,11 @@ className={`
     ].surface
   }
 
-  ${
-  alert.active
-    ? priorityStyles[
-        alert.priority
-      ].chip
-    : `
-        bg-muted/20
 
-        text-muted-foreground
-      `
+${
+  alert.active
+    ? "opacity-100"
+    : "opacity-80"
 }
 `}
             >
@@ -471,7 +446,8 @@ className={`
 
 </div>
               <button
-                onClick={() => setAlerts((prev) => prev.filter((a) => a.id !== alert.id))}
+                // onClick={() => setAlerts((prev) => prev.filter((a) => a.id !== alert.id))}
+                onClick={()=>{}}
                 className="shrink-0 rounded p-0.5 hover:bg-background/50 transition-colors"
                 aria-label={`Dismiss ${alert.title}`}
               >
