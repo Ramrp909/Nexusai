@@ -127,6 +127,15 @@ interface AIContextState {
   lookingAway: boolean;
   setLookingAway: (lookingAway: boolean) => void;
 
+  visionTelemetry: any;
+setVisionTelemetry: (data: any) => void;
+
+vehicleTelemetry: any;
+setVehicleTelemetry: (data: any) => void;
+
+backendEvents: any[];
+setBackendEvents: (events: any[]) => void;
+
   //Danger Alert
   showDangerAlert: boolean;
   setShowDangerAlert: (show: boolean) => void;
@@ -201,6 +210,21 @@ const [
   lookingAway,
   setLookingAway
 ] = useState(false);
+
+const [
+  visionTelemetry,
+  setVisionTelemetry
+] = useState(null);
+
+const [
+  vehicleTelemetry,
+  setVehicleTelemetry
+] = useState(null);
+
+const [
+  backendEvents,
+  setBackendEvents
+] = useState<any[]>([]);
 
 const [
   showDangerAlert,
@@ -415,6 +439,14 @@ const dismissNotification = (
         incrementDrowsiness,
         parkingAssistActive,
         setParkingAssistActive,
+        visionTelemetry,
+        setVisionTelemetry,
+
+        vehicleTelemetry,
+        setVehicleTelemetry,
+
+        backendEvents,
+        setBackendEvents,
       }}
     >
       {children}

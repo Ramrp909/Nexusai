@@ -320,9 +320,9 @@ export default function AIVisionLab() {
 
 
            {/* Backend Response Status */}
-          <div className="rounded-2xl border border-border/30 bg-card/80 backdrop-blur-md p-6 space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="size-5 text-primary" />
+          <div className="rounded-2xl border border-border/30 bg-card/80 backdrop-blur-md p-4 space-y-4">
+            <div className="flex items-center gap-1 mb-2">
+              <Activity className="size-3 text-primary" />
               <div className="text-sm font-semibold">Backend Response Status</div>
             </div>
 
@@ -330,7 +330,7 @@ export default function AIVisionLab() {
               <div className="
               grid
               grid-cols-2
-              gap-3
+              gap-2
               h-full
             ">
               <div className="
@@ -338,7 +338,7 @@ export default function AIVisionLab() {
               rounded-2xl
               border border-border/15
               bg-card/40
-              p-3
+              p-2
                   ">
   <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3">
                 <div className="flex items-center gap-2 mb-1">
@@ -350,7 +350,7 @@ export default function AIVisionLab() {
                 <div className="text-xs font-semibold">Connected</div>
               </div>
 
-              <div className="rounded-lg border border-border/30 bg-muted/40 p-3">
+              <div className="rounded-lg border border-border/30 bg-muted/40 p-2">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     Response Latency
@@ -364,7 +364,7 @@ export default function AIVisionLab() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-border/30 bg-muted/40 p-3">
+              <div className="rounded-lg border border-border/30 bg-muted/40 p-2">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     Model Accuracy

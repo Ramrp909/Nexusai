@@ -39,7 +39,10 @@ const canvasRef =
   lookingAway,
     addNotification,
     setShowDangerAlert,
-    modals,closeModal
+    modals,closeModal,
+    setVisionTelemetry,
+setVehicleTelemetry,
+setBackendEvents,
 } = useAI();
 
 const previousDrowsyRef =
@@ -50,9 +53,6 @@ const previousLookingAwayRef =
 
 const previousAttentionRef =
   useRef("");
-
-
- 
 
   const handleMoreClick = () => {
 
@@ -73,6 +73,7 @@ const previousAttentionRef =
   }
 
 };
+
 const liveStatusCards = [
 
   {
@@ -152,80 +153,58 @@ const liveStatusCards = [
   async function startWebcam() {
 
     try {
-
       const stream =
         await navigator.mediaDevices.getUserMedia({
           video: true,
         });
-
       streamRef.current =
         stream;
-
       if (videoRef.current) {
-
         videoRef.current.srcObject =
           stream;
-
       }
 
     } catch (error) {
-
       console.error(
         "Webcam access failed",
         error
       );
-
     }
-
   }
-
-
-
     startWebcam();
-
-  
-
   return () => {
-
     if (streamRef.current) {
-
-    
-
       streamRef.current = null;
-
     }
-
   };
 
 }, [isDriverMonitorMinimized]);
 
 useEffect(() => {
-
   const interval =
     setInterval(async () => {
-     
       if (
-        !videoRef.current ||
-        !canvasRef.current
-      ) return;
+  !videoRef.current ||
+  !canvasRef.current
+) return;
 
-      const video =
-        videoRef.current;
+const video =
+  videoRef.current;
 
+if (
+  video.readyState < 2 ||
+  !video.videoWidth ||
+  !video.videoHeight
+) return;
       const canvas =
         canvasRef.current;
-
       const ctx =
         canvas.getContext("2d");
-
       if (!ctx) return;
-
       canvas.width =
         video.videoWidth;
-
       canvas.height =
         video.videoHeight;
-
       ctx.drawImage(
         video,
         0,
@@ -236,9 +215,7 @@ useEffect(() => {
 
       canvas.toBlob(
         async (blob) => {
-
           if (!blob) return;
-
           const file =
             new File(
               [blob],
@@ -249,30 +226,51 @@ useEffect(() => {
             );
 
           try {
-
             const result =
               await detectFace(file);
 
-            setAttentionScore(
-              result.attentionScore
-            );
+            const driver =
+                  result.driver;
 
-            setAttentionStatus(
-              result.attentionStatus
-            );
+                const vision =
+                  result.vision;
 
-            setHeadDirection(
-              result.headDirection
-            );
+                const vehicle =
+                  result.vehicle;
 
-            setIsDrowsy(
-              result.isDrowsy
-            );
+                const events =
+                  result.events;
 
-            setLookingAway(
-              result.lookingAway
-            );
+           setAttentionScore(
+  driver.attentionScore
+);
 
+setAttentionStatus(
+  driver.attentionStatus
+);
+
+setHeadDirection(
+  driver.headDirection
+);
+
+setIsDrowsy(
+  driver.isDrowsy
+);
+
+setLookingAway(
+  driver.lookingAway
+);
+setVisionTelemetry(
+  vision
+);
+
+setVehicleTelemetry(
+  vehicle
+);
+
+setBackendEvents(
+  events
+);
           } catch (error) {
 
             console.error(
@@ -293,10 +291,9 @@ useEffect(() => {
     clearInterval(interval);
 
 }, []);
+
 useEffect(() => {
-
   /* Drowsiness */
-
   if (
     isDrowsy &&
     !previousDrowsyRef.current
@@ -308,7 +305,6 @@ useEffect(() => {
     });
 
   }
-
   previousDrowsyRef.current =
     isDrowsy;
 
@@ -318,7 +314,6 @@ useEffect(() => {
     lookingAway &&
     !previousLookingAwayRef.current
   ) {
-
     addNotification({
       ...demoNotifications
         .distractionWarning,
@@ -355,22 +350,16 @@ useEffect(() => {
 ]);
 
 useEffect(() => {
-
   if (isDrowsy) {
-
     if (!drowsyTimeoutRef.current) {
-
       drowsyTimeoutRef.current =
         setTimeout(() => {
 
           setShowDangerAlert(
             true
           );
-
         }, 4000);
-
     }
-
   } else {
 
     if (drowsyTimeoutRef.current) {
@@ -381,13 +370,9 @@ useEffect(() => {
 
       drowsyTimeoutRef.current =
         null;
-
     }
-
     setShowDangerAlert(false);
-
   }
-
 }, [isDrowsy]);
 
   if (isDriverMonitorMinimized) {
@@ -499,17 +484,6 @@ useEffect(() => {
       {/* Camera feed */}
       <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl bg-zinc-950 border border-border/20">
         {/* Detection frame */}
-        {/* <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            <Camera className="size-14 text-zinc-700" />
-            <div className="absolute -inset-10 border-2 border-primary/50 rounded-lg">
-              <div className="absolute -top-px -left-px size-3 border-t-2 border-l-2 border-primary rounded-tl" />
-              <div className="absolute -top-px -right-px size-3 border-t-2 border-r-2 border-primary rounded-tr" />
-              <div className="absolute -bottom-px -left-px size-3 border-b-2 border-l-2 border-primary rounded-bl" />
-              <div className="absolute -bottom-px -right-px size-3 border-b-2 border-r-2 border-primary rounded-br" />
-            </div>
-          </div>
-        </div> */}
         <div className="absolute inset-0 flex items-center justify-center">
         <Camera className="size-14 text-zinc-700" />
         {/* Live Webcam Feed */}

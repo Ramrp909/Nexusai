@@ -44,11 +44,20 @@ export default function AIAssistant() {
   return (
     <div className="rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-4 flex flex-col gap-3 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
       {/* Header with Voice Button */}
-      <div className="flex items-center gap-3 shrink-0">
+      {/* <div className="flex items-center gap-4 shrink-0"> */}
+        {/* Left Section */}
+<div className="
+  flex
+  items-center
+  gap-2
+  shrink-0
+  w-[120px]
+">
+        
         {/* Voice Toggle Button */}
         <button
           onClick={() => setVoiceActive(!isVoiceActive)}
-          className={`relative size-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
+          className={`relative size-08 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ${
             isVoiceActive
               ? "bg-primary text-primary-foreground shadow-[0_0_22px_rgba(6,182,212,0.45)] dark:shadow-[0_0_22px_rgba(16,185,129,0.45)]"
               : "bg-primary/10 text-primary hover:bg-primary/15"
@@ -63,35 +72,149 @@ export default function AIAssistant() {
         </button>
 
         {/* Title */}
-        <div className="flex flex-col gap-0.5">
-          <div className="text-[11px] font-semibold uppercase tracking-wider">AI Assistant</div>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          {/* <div className="text-[11px] font-semibold uppercase tracking-wider">AI Assistant</div> */}
+          <div className="
+  text-[11px]
+
+  font-semibold
+
+  uppercase
+  tracking-wider
+
+  leading-none
+
+  whitespace-nowrap
+">AI Assistant</div>
           <div className="text-[9px] text-muted-foreground">{isVoiceActive ? "Listening…" : "Ready"}</div>
         </div>
       </div>
 
-      {/* AI Feedback - Two Row Layout */}
-      <div className="flex-1 flex flex-col gap-2 min-h-0 overflow-hidden">
-        {/* Row 1: Main Insight */}
-        <div className="rounded-lg border border-border/20 bg-muted/30 p-2.5 space-y-1">
-          <div className={`text-[9px] font-semibold uppercase tracking-wide ${statusColors[aiInsight.status as keyof typeof statusColors]}`}>
-            {aiInsight.title}
-          </div>
-          <div className="text-[10px] text-foreground leading-snug">{aiInsight.message}</div>
-          <div className="text-[8px] text-muted-foreground">Score: {Math.round(attentionScore)}% • {attentionStatus}</div>
+
+      {/* AI Context */}
+<div className="
+  flex-1
+
+  grid
+
+  grid-cols-[1fr_auto]
+
+  items-center
+
+  gap-4
+
+  min-w-0
+">
+
+  {/* Insight */}
+  <div className="
+    rounded-xl
+
+    border border-border/20
+
+    bg-muted/30
+
+    px-3
+    py-2
+
+    min-w-0
+  ">
+
+    <div
+      className={`
+        text-[9px]
+
+        font-semibold
+
+        uppercase
+        tracking-wide
+
+        ${
+          statusColors[
+            aiInsight.status as keyof typeof statusColors
+          ]
+        }
+      `}
+    >
+
+      {aiInsight.title}
+
+    </div>
+
+    <div className="
+      text-[10px]
+
+      text-foreground
+
+      truncate
+    ">
+
+      {aiInsight.message}
+
+    </div>
+
+    <div className="
+      text-[8px]
+
+      text-muted-foreground
+    ">
+
+      Score:
+      {Math.round(attentionScore)}%
+      •
+      {attentionStatus}
+
+    </div>
+
+  </div>
+
+  {/* Recommendations */}
+  <div className="
+    flex
+    items-center
+
+    gap-1.5
+
+    shrink-0
+  ">
+
+    {recommendations
+      .slice(0, 2)
+      .map((rec, idx) => (
+
+        <div
+          key={idx}
+          className="
+            rounded-full
+
+            border border-border/15
+
+            bg-primary/10
+
+            px-2
+            py-1
+
+            text-[8px]
+
+            uppercase
+            tracking-wide
+
+            text-primary
+
+            font-medium
+
+            whitespace-nowrap
+          "
+        >
+
+          {rec}
+
         </div>
 
-        {/* Row 2: Recommendations */}
-        <div className="flex gap-1.5 overflow-hidden flex-wrap">
-          {recommendations.slice(0, 2).map((rec, idx) => (
-            <div
-              key={idx}
-              className="rounded-full border border-border/15 bg-primary/10 px-2 py-0.5 text-[8px] uppercase tracking-wide text-primary font-medium whitespace-nowrap"
-            >
-              {rec}
-            </div>
-          ))}
-        </div>
-      </div>
+      ))}
+  </div>
+
+</div>
     </div>
   );
 }
