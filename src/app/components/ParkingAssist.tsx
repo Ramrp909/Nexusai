@@ -14,13 +14,7 @@ export default function ParkingAssist() {
   const [slowing, setSlowing] = useState(false);
   const [stopped, setStopped] = useState(false);
 
-  // Trigger parking assist when drowsiness exceeds threshold
-  useEffect(() => {
-    if (drowsiness.duration > 10 || drowsiness.count >= 3) {
-      setParkingAssistActive(true);
-      setSlowing(true);
-    }
-  }, [drowsiness.duration, drowsiness.count, setParkingAssistActive]);
+
 
   // Animation sequence
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import NotificationSystem, { Notification } from "../app/components/NotificationSystem";
 
 // Driver Profile Type
@@ -236,6 +236,28 @@ const [
   backendEvents,
   setBackendEvents
 ] = useState<any[]>([]);
+
+useEffect(() => {
+
+  const emergencyEvent =
+    backendEvents.some(
+
+      event =>
+
+        event.type ===
+          "Emergency Intervention"
+
+        &&
+
+        event.severity ===
+          "critical"
+    );
+
+  setParkingAssistActive(
+    emergencyEvent
+  );
+
+}, [backendEvents]);
 
 const [
   showDangerAlert,

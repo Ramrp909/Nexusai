@@ -179,6 +179,7 @@ function AppContent() {
       <AIVisionLab />
       <DriverProfile />
      <EmergencyOverlay />
+     <ParkingAssist />
       
       <NotificationSystem
   notifications={notifications}

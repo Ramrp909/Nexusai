@@ -1,17 +1,320 @@
 import { X, Activity, Target, Camera, AlertCircle } from "lucide-react";
 import { useAI } from "../../context/AIContext";
-import { useState } from "react";
+import { useEffect, useState,useRef} from "react";
+import {
+  FaceMesh,
+  FACEMESH_CONTOURS,
+  FACEMESH_TESSELATION,
+} from "@mediapipe/face_mesh";
+import  Webcam from "react-webcam";
+import axios from "axios"
 
+import { drawConnectors }
+from "@mediapipe/drawing_utils";
 
 export default function AIVisionLab() {
-  const { modals, closeModal, faceDetection } = useAI();
+
+  const { modals, closeModal, faceDetection} = useAI();
   const isOpen = modals.aiVisionLab;
-  const [telemetryData, setTelemetryData] = useState({
-    eyeMovement: 0,
-    blinkRate: 18,
-    gazeStability: 95,
-    attentionTrend: [45, 52, 58, 62, 68, 75, 82, 88, 92, 95],
+ const [telemetryData, setTelemetryData] = useState({
+
+  eyeMovement: 0,
+
+  blinkRate: 18,
+
+  gazeStability: 95,
+
+  attentionScore: 92,
+
+  fps: 30,
+
+  latency: 42,
+
+  trackingConfidence: 97,
+});
+
+const webcamRef =
+  useRef<Webcam>(null);
+
+const canvasRef =
+  useRef<HTMLCanvasElement>(null);
+
+useEffect(() => {
+
+  const faceMesh = new FaceMesh({
+
+    locateFile: (file: string) => {
+
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+    },
   });
+
+  faceMesh.setOptions({
+
+    maxNumFaces: 1,
+
+    refineLandmarks: false,
+
+    minDetectionConfidence: 0.5,
+
+    minTrackingConfidence: 0.5,
+  });
+
+  faceMesh.onResults((results: any) => {
+
+    const canvas =
+      canvasRef.current;
+
+    const video =
+      webcamRef.current?.video;
+
+    if (
+      !canvas ||
+      !video
+    ) return;
+
+    const ctx =
+      canvas.getContext("2d");
+
+    if (!ctx) return;
+
+    canvas.width =
+      video.videoWidth;
+
+    canvas.height =
+      video.videoHeight;
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+    ctx.save();
+
+ctx.translate(
+  canvas.width,
+  0
+);
+
+ctx.scale(-1, 1);
+
+    if (
+      results.multiFaceLandmarks
+    ) {
+
+      for (
+        const landmarks of
+        results.multiFaceLandmarks
+      ) {
+
+        drawConnectors(
+
+          ctx,
+
+          landmarks,
+
+          FACEMESH_TESSELATION,
+
+          {
+
+            color:
+              "rgba(34,211,238,0.55)",
+
+            lineWidth: 0.6,
+          }
+        );
+
+        drawConnectors(
+
+          ctx,
+
+          landmarks,
+
+          FACEMESH_CONTOURS,
+
+          {
+
+            color:
+              "rgba(34,211,238,0.95)",
+
+            lineWidth: 1,
+          }
+        );
+      }
+    }
+    ctx.restore();
+  });
+
+  let animationFrame: number;
+
+  const detectMesh =
+    async () => {
+
+      const video =
+        webcamRef.current?.video;
+
+      if (
+        video &&
+        video.readyState === 4
+      ) {
+
+        await faceMesh.send({
+
+          image: video,
+        });
+      }
+
+      animationFrame =
+        requestAnimationFrame(
+          detectMesh
+        );
+    };
+
+  detectMesh();
+
+  const backendInterval =
+    setInterval(
+
+      async () => {
+
+        const video =
+          webcamRef.current?.video;
+
+        if (
+          video &&
+          video.readyState === 4
+        ) {
+
+          const captureCanvas =
+            document.createElement(
+              "canvas"
+            );
+
+          captureCanvas.width =
+            video.videoWidth;
+
+          captureCanvas.height =
+            video.videoHeight;
+
+          const captureCtx =
+            captureCanvas.getContext(
+              "2d"
+            );
+
+          if (!captureCtx)
+            return;
+
+          captureCtx.drawImage(
+
+            video,
+
+            0,
+
+            0,
+
+            captureCanvas.width,
+
+            captureCanvas.height
+          );
+
+          captureCanvas.toBlob(
+
+            async (blob) => {
+
+              if (!blob) return;
+
+              const formData =
+                new FormData();
+
+              formData.append(
+
+                "file",
+
+                blob,
+
+                "frame.jpg"
+              );
+
+              try {
+
+                const response =
+                  await axios.post(
+
+                    "http://127.0.0.1:8000/detect-face",
+
+                    formData
+                  );
+
+                const data =
+                  response.data;
+
+                setTelemetryData({
+
+                  eyeMovement:
+                    data?.vision
+                      ?.eye_movement ?? 0,
+
+                  blinkRate:
+                    data?.driver
+                      ?.blink_rate ?? 18,
+
+                  gazeStability:
+                    data?.vision
+                      ?.gaze_stability ?? 95,
+
+                  attentionScore:
+                    data?.driver
+                      ?.attention_score ?? 92,
+
+                  fps:
+                    data?.vision
+                      ?.fps ?? 30,
+
+                  latency:
+                    data?.system
+                      ?.latency ?? 42,
+
+                  trackingConfidence:
+                    data?.tracking
+                      ?.confidence ?? 97,
+                });
+
+              } catch (error) {
+
+                console.error(
+                  "Backend error:",
+                  error
+                );
+              }
+            },
+
+            "image/jpeg",
+
+            0.7
+          );
+        }
+      },
+
+      1000
+    );
+
+  return () => {
+
+    cancelAnimationFrame(
+      animationFrame
+    );
+
+    clearInterval(
+      backendInterval
+    );
+  };
+
+}, []);
+
+if (!isOpen) return null; 
+
+
 
   if (!isOpen) return null;
 
@@ -60,122 +363,59 @@ export default function AIVisionLab() {
           gap-4
         ">
   {/* Webcam Feed with Mesh Overlay */}
-          <div className="
-              h-full
-              rounded-2xl
-              border border-border/30
-              bg-card/80
-              backdrop-blur-md
-              overflow-hidden
-            ">
-            {/* Webcam Placeholder */}
-            <div className="
-                relative
-                w-full
-                h-full
-                min-h-[320px]
-                bg-gradient-to-br
-                from-muted/40
-                to-muted/20
-                flex
-                items-center
-                justify-center
-              ">
-              {/* Grid Mesh Overlay */}
-              <svg className="absolute inset-0 w-full h-full opacity-20">
-                <defs>
-                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grid)" />
-              </svg>
+          
+              <div className="
+  relative
 
-              {/* Face Mesh Visualization */}
-              <svg className="absolute inset-0 w-full h-full">
-                {/* Draw face outline */}
-                <circle
-                  cx="50%"
-                  cy="45%"
-                  r="15%"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="text-primary opacity-40"
-                />
-                {/* Eyes */}
-                <circle
-                  cx="40%"
-                  cy="40%"
-                  r="3%"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="text-cyan-400/60"
-                />
-                <circle
-                  cx="60%"
-                  cy="40%"
-                  r="3%"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="text-cyan-400/60"
-                />
-                {/* Gaze direction lines */}
-                <line
-                  x1="40%"
-                  y1="40%"
-                  x2="35%"
-                  y2="35%"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-cyan-400/40"
-                  strokeDasharray="5,5"
-                />
-                <line
-                  x1="60%"
-                  y1="40%"
-                  x2="65%"
-                  y2="35%"
-                  stroke="currentColor"
-                  strokeWidth="1"
-                  className="text-cyan-400/40"
-                  strokeDasharray="5,5"
-                />
-              </svg>
+  h-full
 
-              {/* Status Overlay */}
-              <div className="absolute top-4 right-4 flex items-center gap-2 rounded-lg bg-black/50 px-3 py-2 backdrop-blur-md">
-                <div className="size-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-semibold text-white">LIVE</span>
-              </div>
+  rounded-2xl
 
-              {/* Center Text */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="text-center">
-                  <Camera className="size-8 text-muted/30 mx-auto mb-2" />
-                  <div className="text-sm text-muted/50 font-medium">Webcam Feed</div>
-                  <div className="text-xs text-muted/40 mt-1">Face detection active with mesh overlay</div>
-                </div>
-              </div>
-            </div>
+  border border-border/30
+
+  bg-card/80
+
+  backdrop-blur-md
+
+  overflow-hidden
+">
+ 
+  <div className="relative w-full h-full">
+
+  <Webcam
+    ref={webcamRef}
+    audio={false}
+    mirrored={true}
+    screenshotFormat="image/jpeg"
+    className="
+      absolute
+      inset-0
+      w-full
+      h-full
+      object-contain
+      z-0
+    "
+  />
+
+  <canvas
+    ref={canvasRef}
+    className="
+      absolute
+      inset-0
+      w-full
+      h-full
+      pointer-events-none
+      z-10
+      object-contain
+    "
+  />
+
+</div>
+
+        
 
             {/* Analytics Below Video */}
-            {/* <div className="border-t border-border/20 p-4 grid grid-cols-3 gap-3">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{telemetryData.blinkRate}</div>
-                <div className="text-[9px] uppercase tracking-wide text-muted-foreground mt-1">Blinks/min</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-cyan-400">{telemetryData.eyeMovement}°</div>
-                <div className="text-[9px] uppercase tracking-wide text-muted-foreground mt-1">Eye Movement</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-400">{telemetryData.gazeStability}%</div>
-                <div className="text-[9px] uppercase tracking-wide text-muted-foreground mt-1">Gaze Stability</div>
-              </div>
-            </div> */}
+            
             {/* Analytics Overlay */}
 <div className="
   absolute
