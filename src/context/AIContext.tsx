@@ -140,6 +140,19 @@ interface AIContextState {
   // Cache for backend responses
   apiCache: Record<string, any>;
   updateCache: (key: string, data: any) => void;
+
+  // Drowsiness Tracking
+  drowsiness: {
+    duration: number;
+    count: number;
+    lastDetectedAt: number | null;
+  };
+  resetDrowsiness: () => void;
+  incrementDrowsiness: () => void;
+
+  // Parking Assist
+  parkingAssistActive: boolean;
+  setParkingAssistActive: (active: boolean) => void;
 }
 
 const AIContext = createContext<AIContextState | undefined>(undefined);
@@ -282,6 +295,8 @@ const dismissNotification = (
     { id: string; type: "user" | "system"; content: string; timestamp: Date }[]
   >([]);
   const [apiCache, setApiCache] = useState<Record<string, any>>({});
+  const [drowsiness, setDrowsiness] = useState({ duration: 0, count: 0, lastDetectedAt: null as number | null });
+  const [parkingAssistActive, setParkingAssistActive] = useState(false);
 
   const addProfile = (profile: DriverProfile) => {
     setProfiles((prev) => [...prev, profile]);
@@ -336,6 +351,18 @@ const dismissNotification = (
     setApiCache((prev) => ({ ...prev, [key]: data }));
   };
 
+  const resetDrowsiness = () => {
+    setDrowsiness({ duration: 0, count: 0, lastDetectedAt: null });
+  };
+
+  const incrementDrowsiness = () => {
+    setDrowsiness((prev) => ({
+      duration: prev.duration + 1,
+      count: prev.lastDetectedAt === Math.floor(Date.now() / 1000) ? prev.count : prev.count + 1,
+      lastDetectedAt: Math.floor(Date.now() / 1000),
+    }));
+  };
+
   return (
     <AIContext.Provider
       value={{
@@ -383,6 +410,11 @@ const dismissNotification = (
         dismissNotification,
         showDangerAlert,
         setShowDangerAlert,
+        drowsiness,
+        resetDrowsiness,
+        incrementDrowsiness,
+        parkingAssistActive,
+        setParkingAssistActive,
       }}
     >
       {children}

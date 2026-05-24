@@ -225,7 +225,7 @@ const telemetryStyles = {
  
   if (isFullscreen) {
     return (
-      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col">
+      <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
         {/* Header */}
         <div className="h-16 shrink-0 border-b border-border/30 flex items-center justify-between px-6">
           <div>

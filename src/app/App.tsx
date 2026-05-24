@@ -20,6 +20,8 @@ import TelemetryPanel from "./components/TelemetryPanel";
 import AIVisionLab from "./components/AIVisionLab";
 import DriverProfile from "./components/DriverProfile";
 import EmergencyOverlay from "./emergencyOverlay";
+import IntroScreen from "./components/IntroScreen";
+import ParkingAssist from "./components/ParkingAssist";
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", action: "home" },
@@ -32,11 +34,13 @@ const NAV_ITEMS = [
 function AppContent() {
   const { isDark, setIsDark, openModal } = useAI();
   const [activeNav, setActiveNav] = useState(1);
+  const [showIntro, setShowIntro] = useState(true);
   const {
-  notifications,
-  dismissNotification,
-  showDangerAlert,
-} = useAI();
+    notifications,
+    dismissNotification,
+    showDangerAlert,
+  } = useAI();
+  
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
@@ -52,6 +56,11 @@ function AppContent() {
 
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col select-none">
+      {/* Intro Screen */}
+      <AnimatePresence>
+        {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
+      </AnimatePresence>
+
       {/* ── HEADER ── */}
       <header className="h-16 shrink-0 border-b border-border/30 bg-background/80 backdrop-blur-md flex items-center justify-between px-6 gap-4 z-20">
         {/* Logo */}

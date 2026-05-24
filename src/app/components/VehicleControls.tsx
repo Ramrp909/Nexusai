@@ -50,7 +50,7 @@ export default function VehicleControls() {
   return (
     <>
       {/* Control Strip */}
-      <div className="rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-3 flex items-center">
+      <div className="rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-3 flex items-center hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
         <div className="grid grid-cols-8 gap-2 w-full h-full">
           {CONTROLS.map(({ key, icon: Icon, label }) => (
             <button

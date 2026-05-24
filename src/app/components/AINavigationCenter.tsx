@@ -2,7 +2,7 @@ import { Radar, Car } from "lucide-react";
 
 export default function AINavigationCenter() {
   return (
-    <div className="rounded-[32px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm flex flex-col overflow-hidden min-h-0">
+    <div className="rounded-[32px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm flex flex-col overflow-hidden min-h-0 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
       {/* Header */}
       <div className="px-4 pt-4 pb-2 shrink-0 flex items-center justify-between">
         <div>

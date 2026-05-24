@@ -311,7 +311,7 @@ const pushAlert = (
 };
 
   return (
-    <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-2.5 flex flex-col gap-1 min-h-0">
+    <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-2.5 flex flex-col gap-1 min-h-0 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
       <div className="flex items-center justify-between shrink-0">
         
         <span className="text-[11px] font-semibold uppercase tracking-wider">AI Alerts</span>
