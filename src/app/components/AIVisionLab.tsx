@@ -12,11 +12,17 @@ import axios from "axios"
 import { drawConnectors }
 from "@mediapipe/drawing_utils";
 
+type EventLog = {
+  type: "info" | "warning" | "critical" | "system";
+  message: string;
+  time: string;
+};
+
 export default function AIVisionLab() {
 
   const { modals, closeModal, faceDetection} = useAI();
   const isOpen = modals.aiVisionLab;
- const [telemetryData, setTelemetryData] = useState({
+const [telemetryData, setTelemetryData] = useState({
 
   eyeMovement: 0,
 
@@ -31,7 +37,186 @@ export default function AIVisionLab() {
   latency: 42,
 
   trackingConfidence: 97,
+
+  faceDetected: false,
+
+  isDrowsy: false,
+
+  attentionStatus: "Focused",
+
+  lookingAway: false,
+
+  trackingState: "Lost",
+
+  meshEnabled: false,
+
+  meshConfidence: 0,
+
+  pipelineStatus: "",
+
+  riskLevel: "Low",
+
+  safetyMode: "Monitoring",
+
+  assistState: "Active",
 });
+
+const liveTelemetry = [
+  {
+    label: "Focused",
+    active: telemetryData.attentionScore > 75,
+    color: "emerald",
+  },
+  {
+    label: "Distracted",
+    active: telemetryData.attentionScore < 75 && telemetryData.attentionScore > 45,
+    color: "yellow",
+  },
+  {
+    label: "Drowsy",
+    active: telemetryData.attentionScore <= 45,
+    color: "red",
+  },
+  {
+    label: "Tracking",
+    active: telemetryData.trackingConfidence > 70,
+    color: "cyan",
+  },
+  {
+    label: "Face Lock",
+    active: telemetryData.trackingConfidence > 85,
+    color: "emerald",
+  },
+  {
+    label: "Mesh Active",
+    active: true,
+    color: "cyan",
+  },
+  {
+    label: "Realtime",
+    active: telemetryData.fps > 20,
+    color: "cyan",
+  },
+  {
+    label: "FPS Stable",
+    active: telemetryData.fps >= 24,
+    color: "emerald",
+  },
+  {
+    label: "Backend",
+    active: true,
+    color: "emerald",
+  },
+  {
+    label: "Eye Active",
+    active: telemetryData.eyeMovement > 0,
+    color: "cyan",
+  },
+  {
+    label: "Blinking",
+    active: telemetryData.blinkRate > 15,
+    color: "yellow",
+  },
+  {
+    label: "Gaze Stable",
+    active: telemetryData.gazeStability > 80,
+    color: "emerald",
+  },
+];
+
+const telemetryColors = {
+  emerald: "border-emerald-500/20 bg-emerald-500/10 text-emerald-400",
+  cyan: "border-cyan-500/20 bg-cyan-500/10 text-cyan-400",
+  yellow: "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
+  red: "border-red-500/20 bg-red-500/10 text-red-400",
+};
+
+const [eventLogs, setEventLogs] = useState<EventLog[]>([
+  {
+    type: "info",
+    message: "Vision system initialized",
+    time: new Date().toLocaleTimeString(),
+  },
+]);
+
+const eventColors = {
+  info: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10",
+  warning: "text-yellow-400 border-yellow-500/20 bg-yellow-500/10",
+  critical: "text-red-400 border-red-500/20 bg-red-500/10",
+  system: "text-cyan-400 border-cyan-500/20 bg-cyan-500/10",
+};
+
+useEffect(() => {
+
+  const logs: EventLog[] = [];
+
+  if (telemetryData.attentionScore < 45) {
+
+    logs.push({
+      type: "critical",
+      message: "Drowsiness detected",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  if (
+    telemetryData.attentionScore >= 45 &&
+    telemetryData.attentionScore < 70
+  ) {
+
+    logs.push({
+      type: "warning",
+      message: "Attention score dropping",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  if (telemetryData.trackingConfidence < 50) {
+
+    logs.push({
+      type: "system",
+      message: "Tracking confidence unstable",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  if (telemetryData.fps < 20) {
+
+    logs.push({
+      type: "system",
+      message: "Frame rate drop detected",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  if (telemetryData.gazeStability > 85) {
+
+    logs.push({
+      type: "info",
+      message: "Driver attention stabilized",
+      time: new Date().toLocaleTimeString(),
+    });
+  }
+
+  if (logs.length > 0) {
+
+    setEventLogs((prev) => {
+
+      const updated = [
+        ...logs,
+        ...prev,
+      ];
+
+      return updated.slice(0, 12);
+    });
+  }
+
+}, [
+  telemetryData.attentionScore,
+  telemetryData.trackingConfidence,
+  telemetryData.fps,
+  telemetryData.gazeStability,
+]);
 
 const webcamRef =
   useRef<Webcam>(null);
@@ -251,34 +436,64 @@ ctx.scale(-1, 1);
 
                 setTelemetryData({
 
-                  eyeMovement:
-                    data?.vision
-                      ?.eye_movement ?? 0,
+  eyeMovement:
+    data?.vision?.eye_movement ?? 0,
 
-                  blinkRate:
-                    data?.driver
-                      ?.blink_rate ?? 18,
+  blinkRate:
+    data?.driver?.blinkRate ?? 18,
 
-                  gazeStability:
-                    data?.vision
-                      ?.gaze_stability ?? 95,
+  gazeStability:
+    data?.driver?.gazeStability ?? 95,
 
-                  attentionScore:
-                    data?.driver
-                      ?.attention_score ?? 92,
+  attentionScore:
+    data?.driver?.attentionScore ?? 92,
 
-                  fps:
-                    data?.vision
-                      ?.fps ?? 30,
+  fps:
+    data?.vision?.fps ?? 30,
 
-                  latency:
-                    data?.system
-                      ?.latency ?? 42,
+  latency:
+    data?.vision?.latency ?? 42,
 
-                  trackingConfidence:
-                    data?.tracking
-                      ?.confidence ?? 97,
-                });
+  trackingConfidence:
+    data?.vision?.meshConfidence
+      ? Math.round(
+          data.vision.meshConfidence * 100
+        )
+      : 0,
+
+  faceDetected:
+    data?.driver?.faceDetected ?? false,
+
+  isDrowsy:
+    data?.driver?.isDrowsy ?? false,
+
+  attentionStatus:
+    data?.driver?.attentionStatus ?? "Focused",
+
+  lookingAway:
+    data?.driver?.lookingAway ?? false,
+
+  trackingState:
+    data?.vision?.trackingState ?? "Lost",
+
+  meshEnabled:
+    data?.vision?.meshEnabled ?? false,
+
+  meshConfidence:
+    data?.vision?.meshConfidence ?? 0,
+
+  pipelineStatus:
+    data?.vision?.pipelineStatus ?? "",
+
+  riskLevel:
+    data?.vehicle?.riskLevel ?? "Low",
+
+  safetyMode:
+    data?.vehicle?.safetyMode ?? "Monitoring",
+
+  assistState:
+    data?.vehicle?.assistState ?? "Active",
+});
 
               } catch (error) {
 
@@ -313,10 +528,6 @@ ctx.scale(-1, 1);
 }, []);
 
 if (!isOpen) return null; 
-
-
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-background/98 backdrop-blur-md flex flex-col">
@@ -600,21 +811,21 @@ if (!isOpen) return null;
                   className="text-xs font-semibold text-primary"
                   style={{ fontFamily: "JetBrains Mono, monospace" }}
                 >
-                  42ms
+                  {telemetryData.latency}ms
                 </div>
               </div>
 
               <div className="rounded-lg border border-border/30 bg-muted/40 p-2">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Model Accuracy
+                    Model Accuracy- Trackconf
                   </span>
                 </div>
                 <div
                   className="text-xs font-semibold text-green-500"
                   style={{ fontFamily: "JetBrains Mono, monospace" }}
                 >
-                  98.7%
+                  {telemetryData.trackingConfidence}%
                 </div>
               </div>
 </div>
@@ -659,189 +870,248 @@ if (!isOpen) return null;
 
             </div>
           </div>
+
+          
            </div>
           
           {/* RIGHT SIDE */}
-<div className="
-  grid
+<div className="grid grid-rows-2  gap-4 min-h-0">
+  <div className="flex h-full flex-col gap-3">
 
-  grid-rows-2
+  <div className="grid grid-cols-2 gap-3">
 
-  gap-4
-
-  min-h-0
-">
-  {/* Face Mesh Metrics */}
-          <div className="rounded-2xl border border-border/30 bg-card/80 backdrop-blur-md p-6 space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Camera className="size-5 text-primary" />
-              <div className="text-sm font-semibold">Face Mesh Metrics</div>
-            </div>
-
-            {/* <div className="space-y-3"> */}
-              <div className="
-  grid
-
-  grid-cols-2
-
-  gap-2
-">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Detection State
-                </span>
-                <span className="text-xs font-semibold text-green-500">Active</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Confidence Score
-                </span>
-                <span
-                  className="text-xs font-semibold text-primary"
-                  style={{ fontFamily: "JetBrains Mono, monospace" }}
-                >
-                  {(faceDetection.confidence * 100).toFixed(1)}%
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Landmarks
-                </span>
-                <span
-                  className="text-xs font-semibold"
-                  style={{ fontFamily: "JetBrains Mono, monospace" }}
-                >
-                  {faceDetection.faceMesh?.landmarks || 468}
-                </span>
-              </div>
-
-              <div className="pt-2 border-t border-border/30">
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">
-                  Face Pose
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] text-muted-foreground">Yaw</span>
-                    <span
-                      className="text-xs font-medium"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.faceMesh?.yaw.toFixed(2)}°
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] text-muted-foreground">Pitch</span>
-                    <span
-                      className="text-xs font-medium"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.faceMesh?.pitch.toFixed(2)}°
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] text-muted-foreground">Roll</span>
-                    <span
-                      className="text-xs font-medium"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.faceMesh?.roll.toFixed(2)}°
-                    </span>
-                  </div>
+            {/* AI Telemetry */}
+            <div className="rounded-2xl border border-border/20 bg-card/60 p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <Activity className="size-5 text-cyan-400" />
+                <div className="text-s font-semibold uppercase tracking-wider">
+                  AI Telemetry
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Face Tracking Data */}
-          <div className="rounded-2xl border border-border/30 bg-card/80 backdrop-blur-md p-6 space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Target className="size-5 text-primary" />
-              <div className="text-sm font-semibold">Face Tracking Data</div>
-            </div>
+              <div className="flex flex-wrap gap-2">
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Face ID
-                </span>
-                <span
-                  className="text-xs font-medium"
-                  style={{ fontFamily: "JetBrains Mono, monospace" }}
-                >
-                  {faceDetection.tracking?.faceId || "N/A"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Tracking Confidence
-                </span>
-                <span
-                  className="text-xs font-semibold text-green-500"
-                  style={{ fontFamily: "JetBrains Mono, monospace" }}
-                >
-                  {((faceDetection.tracking?.confidence || 0) * 100).toFixed(1)}%
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  Frame Rate
-                </span>
-                <span
-                  className="text-xs font-semibold text-primary"
-                  style={{ fontFamily: "JetBrains Mono, monospace" }}
-                >
-                  {faceDetection.tracking?.fps || 30} fps
-                </span>
-              </div>
-
-              <div className="pt-2 border-t border-border/30">
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">
-                  Bounding Box
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span className="text-[9px] text-muted-foreground">X:</span>
-                    <span
-                      className="text-xs font-medium ml-1"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.tracking?.boundingBox.x || 0}
-                    </span>
+                <div className="rounded-md border border-border/20 bg-muted/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    State
                   </div>
-                  <div>
-                    <span className="text-[9px] text-muted-foreground">Y:</span>
-                    <span
-                      className="text-xs font-medium ml-1"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.tracking?.boundingBox.y || 0}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] text-muted-foreground">W:</span>
-                    <span
-                      className="text-xs font-medium ml-1"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.tracking?.boundingBox.w || 0}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] text-muted-foreground">H:</span>
-                    <span
-                      className="text-xs font-medium ml-1"
-                      style={{ fontFamily: "JetBrains Mono, monospace" }}
-                    >
-                      {faceDetection.tracking?.boundingBox.h || 0}
-                    </span>
+                  <div className="text-s font-semibold text-cyan-400">
+                    Active
                   </div>
                 </div>
+
+                <div className="rounded-md border border-border/20 bg-muted/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Confidence
+                  </div>
+                  <div className="text-s font-semibold text-emerald-400">
+                    {telemetryData.trackingConfidence}%
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 bg-muted/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Landmarks
+                  </div>
+                  <div className="text-s font-semibold text-primary">
+                    468
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Yaw
+                  </div>
+                  <div className="text-s font-semibold">
+                    12°
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Pitch
+                  </div>
+                  <div className="text-s font-semibold">
+                    4°
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Roll
+                  </div>
+                  <div className="text-s font-semibold">
+                    2°
+                  </div>
+                </div>
+
               </div>
             </div>
+
+            {/* Face Tracking */}
+            <div className="rounded-2xl border border-border/20 bg-card/60 p-3">
+
+              <div className="mb-2 flex items-center gap-2">
+                <Target className="size-4 text-primary" />
+                <div className="text-s font-semibold uppercase tracking-wider">
+                  Face Tracking
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Face ID
+                  </div>
+                  <div className="text-s font-semibold">
+                    FACE-01
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Status
+                  </div>
+                  <div className="text-s font-semibold text-emerald-400">
+                    Tracking
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    FPS
+                  </div>
+                  <div className="text-s font-semibold text-cyan-400">
+                    {telemetryData.fps}
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    X
+                  </div>
+                  <div className="text-s font-semibold">
+                    120
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    Y
+                  </div>
+                  <div className="text-s font-semibold">
+                    84
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    W
+                  </div>
+                  <div className="text-s font-semibold">
+                    240
+                  </div>
+                </div>
+
+                <div className="rounded-md border border-border/20 px-2 py-1">
+                  <div className="text-[8px] uppercase text-muted-foreground">
+                    H
+                  </div>
+                  <div className="text-s font-semibold">
+                    260
+                  </div>
+                </div>
+
+              </div>
+
+            </div>     
+            </div> 
+            
+            <div className="rounded-2xl border border-border/20 bg-card/60 p-3">
+
+  <div className="mb-3 flex items-center gap-2">
+    <Activity className="size-4 text-cyan-400" />
+    <div className="text-xs font-semibold uppercase tracking-wider">
+      Live Telemetry
+    </div>
+  </div>
+
+  <div className="grid grid-cols-3 gap-2">
+
+    {liveTelemetry.map((item) => (
+
+      <div
+        key={item.label}
+        className={`rounded-full border px-2 py-1 text-[12px] font-semibold uppercase tracking-wide text-center transition-all duration-300 ${
+          item.active
+            ? telemetryColors[item.color as keyof typeof telemetryColors]
+            : "border-border/20 bg-muted/20 text-muted-foreground/40"
+        }`}
+      >
+        {item.label}
+      </div>
+
+    ))}
+
+  </div>
+  {/* Intelligent Event Console */}
+  <div className="flex-1 min-h-0 rounded-2xl border border-border/20 bg-card/60 p-3">
+
+    <div className="mb-3 flex items-center gap-2">
+      <AlertCircle className="size-4 text-yellow-400" />
+      <div className="text-xs font-semibold uppercase tracking-wider">
+        Intelligent Event Console
+      </div>
+    </div>
+
+    {/* Event Logs Here */}
+    <div className="flex h-full flex-col gap-2 overflow-y-auto pr-1">
+
+  {eventLogs.map((log, index) => (
+
+    <div
+      key={index}
+      className={`rounded-xl border p-2 text-xs ${
+        eventColors[log.type as keyof typeof eventColors]
+      }`}
+    >
+
+      <div className="mb-1 flex items-center justify-between">
+
+        <span className="font-semibold uppercase tracking-wide">
+          {log.type}
+        </span>
+
+        <span className="text-[9px] opacity-70">
+          {log.time}
+        </span>
+
+      </div>
+
+      <div className="text-[11px]">
+        {log.message}
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
+
+  </div>
+
+</div>
+
+  
           </div>
           </div>
 
