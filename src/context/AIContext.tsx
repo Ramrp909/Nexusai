@@ -88,6 +88,18 @@ interface AIContextState {
   faceDetection: FaceDetectionStatus;
   setFaceDetection: (status: Partial<FaceDetectionStatus>) => void;
 
+  //globalstate
+  globalTestMode: boolean;
+  setGlobalTestMode: (mode: boolean) => void;
+  testDriverProfile: "known" | "guest" | "unknown";
+  setTestDriverProfile: (profile: "known" | "guest" | "unknown") => void;
+  testEmergencyMode: boolean;
+  setTestEmergencyMode: (mode: boolean) => void;
+  testCollisionWarning: boolean;
+  setTestCollisionWarning: (warning: boolean) => void;
+
+
+
   // Theme
   isDark: boolean;
   setIsDark: (dark: boolean) => void;
@@ -193,6 +205,17 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   notifications,
   setNotifications,
 ] = useState<Notification[]>([]);
+
+const [globalTestMode, setGlobalTestMode] = useState(false);
+const [testDriverProfile, setTestDriverProfile] = useState<
+  "known" | "guest" | "unknown"
+>("unknown");
+
+const [testEmergencyMode, setTestEmergencyMode] =
+  useState(false);
+
+const [testCollisionWarning, setTestCollisionWarning] =
+  useState(false);
 
   const [
   attentionScore,
@@ -484,6 +507,18 @@ const dismissNotification = (
 
         backendEvents,
         setBackendEvents,
+
+        globalTestMode,
+setGlobalTestMode,
+
+testDriverProfile,
+setTestDriverProfile,
+
+testEmergencyMode,
+setTestEmergencyMode,
+
+testCollisionWarning,
+setTestCollisionWarning,
       }}
     >
       {children}

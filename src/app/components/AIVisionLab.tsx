@@ -18,9 +18,21 @@ type EventLog = {
   time: string;
 };
 
+import TestPanel from "./TestPanel";
+
 export default function AIVisionLab() {
 
-  const { modals, closeModal, faceDetection} = useAI();
+  const [testMode, setTestMode] = useState(false);
+  const simulateTelemetry = (
+  data: Partial<typeof telemetryData>
+) => {
+
+  setTelemetryData(prev => ({
+    ...prev,
+    ...data,
+  }));
+};
+  const { modals, closeModal, faceDetection,setParkingAssistActive} = useAI();
   const isOpen = modals.aiVisionLab;
 const [telemetryData, setTelemetryData] = useState({
 
@@ -130,6 +142,8 @@ const telemetryColors = {
   yellow: "border-yellow-500/20 bg-yellow-500/10 text-yellow-400",
   red: "border-red-500/20 bg-red-500/10 text-red-400",
 };
+
+
 
 const [eventLogs, setEventLogs] = useState<EventLog[]>([
   {
@@ -359,9 +373,12 @@ ctx.scale(-1, 1);
   detectMesh();
 
   const backendInterval =
+  
     setInterval(
+      
 
       async () => {
+        if (testMode) return;
 
         const video =
           webcamRef.current?.video;
@@ -530,6 +547,7 @@ ctx.scale(-1, 1);
 if (!isOpen) return null; 
 
   return (
+    <>
     <div className="fixed inset-0 z-50 bg-background/98 backdrop-blur-md flex flex-col">
       {/* Header */}
       <div className="h-16 shrink-0 border-b border-border/30 flex items-center justify-between px-6">
@@ -1118,6 +1136,15 @@ if (!isOpen) return null;
           
         </div>
       </div>
+      
     </div>
+    <TestPanel
+  telemetryData={telemetryData}
+  simulateTelemetry={simulateTelemetry}
+  testMode={testMode}
+  setTestMode={setTestMode}
+  setParkingAssistActive={setParkingAssistActive}
+/>
+    </>
   );
 }
