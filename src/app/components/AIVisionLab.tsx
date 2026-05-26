@@ -1110,7 +1110,21 @@ if (!isOpen) return null;
 
   </div>
   {/* Intelligent Event Console */}
-  <div className="flex-1 min-h-0 rounded-2xl border border-border/20 bg-card/60 p-3">
+  {/* <div className="flex-1 min-h-0 rounded-2xl border border-border/20 bg-card/60 p-3"> */}
+  <div
+  className="
+    flex
+    flex-col
+    gap-2
+    overflow-y-auto
+    pr-1
+    max-h-[260px]
+    min-h-0
+    scrollbar-thin
+    scrollbar-thumb-cyan-500/20
+    scrollbar-track-transparent
+  "
+>
 
     <div className="mb-3 flex items-center gap-2">
       <AlertCircle className="size-4 text-yellow-400" />
@@ -1126,7 +1140,7 @@ if (!isOpen) return null;
 
     <div
       key={index}
-      className={`rounded-xl border p-2 text-xs ${
+      className={`rounded-xl border p-1 text-xs ${
         eventColors[log.type as keyof typeof eventColors]
       }`}
     >

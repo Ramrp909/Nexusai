@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FlaskConical, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 type TestPanelProps = {
   telemetryData: {
@@ -159,6 +160,38 @@ const resetGlobalStates = () => {
   setParkingAssistActive(false);
 };
 
+const clearDriverProfiles =
+  async () => {
+
+    try {
+
+      const response =
+        await fetch(
+          "http://127.0.0.1:8000/clear-drivers",
+          {
+            method: "DELETE",
+          }
+        );
+
+      const data =
+        await response.json();
+
+      console.log(data);
+
+      alert(
+        "All saved driver profiles cleared"
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to clear profiles"
+      );
+    }
+};
+
 const Section = ({
   title,
   items,
@@ -210,7 +243,11 @@ return (
     )}
 
     {open ? (
-      <div className="fixed bottom-20 right-4 z-[999] max-h-[80vh] w-[320px] overflow-y-auto rounded-2xl border border-border/20 bg-card/95 p-4 shadow-2xl backdrop-blur-md">
+      <motion.div
+        drag
+  dragMomentum={false}
+  dragElastic={0.08}
+ className="fixed bottom-20 right-4 z-[999] max-h-[80vh] w-[320px] overflow-y-auto rounded-2xl border border-border/20 bg-card/95 p-4 shadow-2xl backdrop-blur-md">
 
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
@@ -268,7 +305,26 @@ return (
   Reset Telemetry
 </button>
 
-      </div>
+<button
+  onClick={
+    clearDriverProfiles
+  }
+  className="
+    px-4 py-2
+    mt-2
+    rounded-xl
+    bg-red-500/20
+    border border-red-500/30
+    text-red-300
+    text-sm
+    hover:bg-red-500/30
+    transition
+  "
+>
+  Clear Driver Profiles
+</button>
+
+      </motion.div>
     ) : null}
   </>
 );

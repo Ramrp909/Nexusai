@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect,useRef } from "react";
 import NotificationSystem, { Notification } from "../app/components/NotificationSystem";
 
 // Driver Profile Type
@@ -65,8 +65,46 @@ type RecognizedDriver = {
   confidence: number;
 } | null;
 
+//cooldown
+type AlertCooldowns = {
+  [key: string]: number;
+};
+
+
+
 // AI Context State
 interface AIContextState {
+
+  //cooldown notification
+  alertCooldowns:
+AlertCooldowns;
+
+setAlertCooldowns:
+React.Dispatch<
+  React.SetStateAction<AlertCooldowns>
+>;
+
+canTriggerAlert: (
+  key: string,
+  cooldown?: number
+) => boolean;
+
+//global sound
+playAlertSound: (
+  type:
+    | "info"
+    | "warning"
+    | "critical"
+    | "parking"
+    | "success"
+) => void;
+
+//speak
+speak: (
+  text: string,
+  priority?: "normal" | "critical"
+) => void;
+
   // Driver Management
   currentProfile: DriverProfile | null;
   profiles: DriverProfile[];
@@ -319,6 +357,146 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   setNotifications,
 ] = useState<Notification[]>([]);
 
+const [
+  alertCooldowns,
+  setAlertCooldowns,
+] = useState<AlertCooldowns>(
+  {}
+);
+
+const notificationAudio =
+  useRef(
+    new Audio(
+      "/sounds/notification.mp3"
+    )
+  );
+
+const warningAudio =
+  useRef(
+    new Audio(
+      "/sounds/warning.mp3"
+    )
+  );
+
+const criticalAudio =
+  useRef(
+    new Audio(
+      "/sounds/critical.mp3"
+    )
+  );
+
+const parkingAudio =
+  useRef(
+    new Audio(
+      "/sounds/parking.mp3"
+    )
+  );
+
+const successAudio =
+  useRef(
+    new Audio(
+      "/sounds/success.mp3"
+    )
+  );
+
+const playAlertSound = (
+  type:
+    | "info"
+    | "warning"
+    | "critical"
+    | "parking"
+    | "success"
+) => {
+
+  let path = "";
+
+  switch (type) {
+
+    case "warning":
+      path =
+        "/sounds/warning.mp3";
+      break;
+
+    case "critical":
+      path =
+        "/sounds/critical.mp3";
+      break;
+
+    case "parking":
+      path =
+        "/sounds/parking.mp3";
+      break;
+
+    case "success":
+      path =
+        "/sounds/success.mp3";
+      break;
+
+    default:
+      path =
+        "/sounds/notification.mp3";
+  }
+
+  const audio =
+    new Audio(path);
+
+  audio.volume = 0.8;
+
+  audio.play().catch(
+    console.error
+  );
+};
+const speak = (
+  text: string,
+  priority:
+    | "normal"
+    | "critical" = "normal"
+) => {
+
+  if (
+    !window.speechSynthesis
+  ) return;
+
+  window.speechSynthesis.cancel();
+
+  const utterance =
+    new SpeechSynthesisUtterance(
+      text
+    );
+
+  utterance.rate =
+    priority === "critical"
+      ? 1
+      : 0.95;
+
+  utterance.pitch = 1;
+
+  utterance.volume = 1;
+
+  const voices =
+    window.speechSynthesis.getVoices();
+
+  const preferredVoice =
+    voices.find(
+      (voice) =>
+        voice.name.includes(
+          "Google"
+        ) ||
+        voice.name.includes(
+          "Microsoft"
+        )
+    );
+
+  if (preferredVoice) {
+
+    utterance.voice =
+      preferredVoice;
+  }
+
+  window.speechSynthesis.speak(
+    utterance
+  );
+};
 const [globalTestMode, setGlobalTestMode] = useState(false);
 const [testDriverProfile, setTestDriverProfile] = useState<
   "known" | "guest" | "unknown"
@@ -484,11 +662,27 @@ const [
     id,
   };
 
-  setNotifications(prev => [
+ setNotifications(prev => {
+
+  const alreadyExists =
+    prev.some(
+      item =>
+        item.title ===
+          newNotification.title &&
+        item.type ===
+          newNotification.type
+    );
+
+  if (alreadyExists) {
+
+    return prev;
+  }
+
+  return [
     ...prev,
     newNotification,
-  ]);
-
+  ].slice(-5);
+});
   if (notification.duration) {
 
     setTimeout(() => {
@@ -605,9 +799,42 @@ const dismissNotification = (
   null
 );
 
+const canTriggerAlert = (
+  key: string,
+  cooldown = 5000
+) => {
+
+  const now = Date.now();
+
+  const lastTriggered =
+    alertCooldowns[key] || 0;
+
+  if (
+    now - lastTriggered <
+    cooldown
+  ) {
+
+    return false;
+  }
+
+  setAlertCooldowns(
+    (prev) => ({
+      ...prev,
+      [key]: now,
+    })
+  );
+
+  return true;
+};
+
   return (
     <AIContext.Provider
       value={{
+        alertCooldowns,
+setAlertCooldowns,
+canTriggerAlert,
+playAlertSound,
+speak,
         currentProfile,
         recognizedDriver,
 setRecognizedDriver,

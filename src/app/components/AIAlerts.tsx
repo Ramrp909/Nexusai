@@ -38,6 +38,9 @@ export default function AIAlerts() {
   testCollisionWarning,
 testEmergencyMode,
 testDriverProfile,
+canTriggerAlert,
+playAlertSound,
+speak,
 } = useAI();
 
 const priorityStyles = {
@@ -209,8 +212,7 @@ const alerts: AIAlert[] =
         : CheckCircle,
     })
   );
-
-  const simulatedAlerts: AIAlert[] = [];
+const simulatedAlerts: AIAlert[] = [];
   if (testCollisionWarning) {
 
   simulatedAlerts.push({
@@ -223,6 +225,106 @@ const alerts: AIAlert[] =
     icon: AlertTriangle,
   });
 }
+
+useEffect(() => {
+
+  alerts.forEach((alert) => {
+
+    /* Critical Alerts */
+
+    if (
+      alert.priority ===
+        "critical" &&
+      canTriggerAlert(
+        `critical-${alert.title}`,
+        12000
+      )
+    ) {
+
+      playAlertSound(
+        "critical"
+      );
+    }
+
+    /* Warning Alerts */
+
+    if (
+      alert.priority ===
+        "warning" &&
+      canTriggerAlert(
+        `warning-${alert.title}`,
+        8000
+      )
+    ) {
+
+      playAlertSound(
+        "warning"
+      );
+    }
+
+    /* Info Alerts */
+
+    if (
+      alert.priority ===
+        "info" &&
+      canTriggerAlert(
+        `info-${alert.title}`,
+        6000
+      )
+    ) {
+
+      playAlertSound(
+        "info"
+      );
+    }
+  });
+
+}, [alerts]);
+
+useEffect(() => {
+
+  simulatedAlerts.forEach(
+    (alert) => {
+
+      if (
+        canTriggerAlert(
+          alert.id,
+          10000
+        )
+      ) {
+
+        if (
+          alert.priority ===
+          "critical"
+        ) {
+
+          playAlertSound(
+            "critical"
+          );
+
+          speak(
+            alert.title,
+            "critical"
+          );
+
+        } else if (
+          alert.priority ===
+          "info"
+        ) {
+
+          playAlertSound(
+            "success"
+          );
+
+          speak(
+            alert.title
+          );
+        }
+      }
+    }
+  );
+
+}, [simulatedAlerts]);
 if (testEmergencyMode) {
 
   simulatedAlerts.push({
@@ -370,7 +472,7 @@ ${
 
 </div>
               <button
-                // onClick={() => setAlerts((prev) => prev.filter((a) => a.id !== alert.id))}
+                
                 onClick={()=>{}}
                 className="shrink-0 rounded p-0.5 hover:bg-background/50 transition-colors"
                 aria-label={`Dismiss ${alert.title}`}

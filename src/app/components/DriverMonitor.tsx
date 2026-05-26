@@ -47,7 +47,11 @@ const canvasRef =
     setVisionTelemetry,
 setVehicleTelemetry,
 setBackendEvents,
-setDriverFrame
+setDriverFrame,
+canTriggerAlert,
+playAlertSound,
+speak,
+setParkingAssistActive
 } = useAI();
 
 const previousDrowsyRef =
@@ -58,6 +62,8 @@ const previousLookingAwayRef =
 
 const previousAttentionRef =
   useRef("");
+const appReadyRef =
+  useRef(false);
 
   const handleMoreClick = () => {
 
@@ -152,6 +158,23 @@ const liveStatusCards = [
     value: `+${liveStatusCards.length - 3}`,
     color: "text-primary",
   };
+
+  const initializedRef =
+  useRef(false);
+useEffect(() => {
+
+  const timer =
+    setTimeout(() => {
+
+      appReadyRef.current =
+        true;
+
+    }, 3000);
+
+  return () =>
+    clearTimeout(timer);
+
+}, []);
 
   useEffect(() => {
 
@@ -302,10 +325,16 @@ setBackendEvents(
 }, []);
 
 useEffect(() => {
+
   /* Drowsiness */
+
   if (
     isDrowsy &&
-    !previousDrowsyRef.current
+    !previousDrowsyRef.current &&
+    canTriggerAlert(
+      "drowsy-alert",
+      12000
+    )
   ) {
 
     addNotification({
@@ -313,7 +342,16 @@ useEffect(() => {
         .drowsinessDetected,
     });
 
+    playAlertSound(
+      "warning"
+    );
+
+    speak(
+      "Drowsiness detected",
+      "critical"
+    );
   }
+
   previousDrowsyRef.current =
     isDrowsy;
 
@@ -321,13 +359,21 @@ useEffect(() => {
 
   if (
     lookingAway &&
-    !previousLookingAwayRef.current
+    !previousLookingAwayRef.current &&
+    canTriggerAlert(
+      "distraction-alert",
+      8000
+    )
   ) {
+
     addNotification({
       ...demoNotifications
         .distractionWarning,
     });
 
+    playAlertSound(
+      "warning"
+    );
   }
 
   previousLookingAwayRef.current =
@@ -347,6 +393,17 @@ useEffect(() => {
         .safeDriving,
     });
 
+    if (
+      canTriggerAlert(
+        "safe-driving",
+        10000
+      )
+    ) {
+
+      playAlertSound(
+        "success"
+      );
+    }
   }
 
   previousAttentionRef.current =
@@ -359,19 +416,24 @@ useEffect(() => {
 ]);
 
 useEffect(() => {
-  if (isDrowsy) {
-    if (!drowsyTimeoutRef.current) {
-      drowsyTimeoutRef.current =
-        setTimeout(() => {
+    if (
+  !initializedRef.current ||
+  !appReadyRef.current
+) {
 
-          setShowDangerAlert(
-            true
-          );
-        }, 4000);
-    }
-  } else {
+    initializedRef.current =
+      true;
 
-    if (drowsyTimeoutRef.current) {
+    return;
+  }
+
+  /* DRIVER RECOVERED */
+
+  if (!isDrowsy) {
+
+    if (
+      drowsyTimeoutRef.current
+    ) {
 
       clearTimeout(
         drowsyTimeoutRef.current
@@ -380,8 +442,108 @@ useEffect(() => {
       drowsyTimeoutRef.current =
         null;
     }
-    setShowDangerAlert(false);
+
+    return;
   }
+
+  /* STAGE 1
+     DROWSINESS WARNING
+  */
+
+  if (
+    canTriggerAlert(
+      "drowsy-warning",
+      10000
+    )
+  ) {
+
+    addNotification({
+      ...demoNotifications
+        .drowsinessDetected,
+    });
+
+    playAlertSound(
+      "warning"
+    );
+  }
+
+  /* STAGE 2
+     EMERGENCY OVERLAY
+  */
+
+  if (
+    !drowsyTimeoutRef.current
+  ) {
+
+    drowsyTimeoutRef.current =
+      setTimeout(() => {
+
+        if (!isDrowsy)
+          return;
+
+        setShowDangerAlert(
+          true
+        );
+
+        playAlertSound(
+          "critical"
+        );
+
+        speak(
+          "Critical fatigue detected",
+          "critical"
+        );
+
+        /* HIDE OVERLAY */
+
+        setTimeout(() => {
+
+          setShowDangerAlert(
+            false
+          );
+
+        }, 5000);
+
+        /* STAGE 3
+           PARKING ASSIST
+        */
+
+        setTimeout(() => {
+
+          if (!isDrowsy)
+            return;
+
+          setParkingAssistActive(
+            true
+          );
+
+          playAlertSound(
+            "critical"
+          );
+
+          speak(
+            "Emergency mode detected. Parking assist activated for safety.",
+            "critical"
+          );
+
+          /* KEEP PA OPEN */
+
+          setTimeout(() => {
+
+            setParkingAssistActive(
+              false
+            );
+
+          }, 3000);
+
+        }, 5000);
+
+        drowsyTimeoutRef.current =
+          null;
+
+      }, 5000);
+  }
+
 }, [isDrowsy]);
 
   if (isDriverMonitorMinimized) {

@@ -67,7 +67,7 @@ testCollisionWarning,
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-[99] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+        className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center"
       >
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
