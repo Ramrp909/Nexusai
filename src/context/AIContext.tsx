@@ -83,6 +83,13 @@ React.Dispatch<
   React.SetStateAction<RecognizedDriver>
 >;
 
+//driverframe
+driverFrame: Blob | null;
+
+setDriverFrame:
+React.Dispatch<
+  React.SetStateAction<Blob | null>
+>;
 
   // Vehicle Mode
   vehicleMode: "fuel" | "ev";
@@ -300,6 +307,13 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
       sound: { volume: 50, equalizer: "balanced" },
     },
   };
+
+  const [
+  driverFrame,
+  setDriverFrame,
+] = useState<Blob | null>(
+  null
+);
   const [
   notifications,
   setNotifications,
@@ -597,6 +611,8 @@ const dismissNotification = (
         currentProfile,
         recognizedDriver,
 setRecognizedDriver,
+driverFrame,
+setDriverFrame,
         profiles,
         setCurrentProfile,
         addProfile,

@@ -47,6 +47,7 @@ const canvasRef =
     setVisionTelemetry,
 setVehicleTelemetry,
 setBackendEvents,
+setDriverFrame
 } = useAI();
 
 const previousDrowsyRef =
@@ -220,6 +221,7 @@ if (
       canvas.toBlob(
         async (blob) => {
           if (!blob) return;
+          setDriverFrame(blob);
           const file =
             new File(
               [blob],

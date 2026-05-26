@@ -23,6 +23,9 @@ import EmergencyOverlay from "./emergencyOverlay";
 import IntroScreen from "./components/IntroScreen";
 import ParkingAssist from "./components/ParkingAssist";
 
+import NewDriverModal from "./components/NewDriverModal";
+import WelcomeDriverCard from "./components/WelcomeDriverCard";
+
 
 
 const NAV_ITEMS = [
@@ -42,10 +45,170 @@ function AppContent() {
     dismissNotification,
     showDangerAlert,
   } = useAI();
-  
+  const [
+  showNewDriverModal,
+  setShowNewDriverModal,
+] = useState(false);
+const [
+  driverStatus,
+  setDriverStatus,
+] = useState(
+  "Scanning Driver..."
+);
+
+const [
+  showWelcomeCard,
+  setShowWelcomeCard,
+] = useState(false);
+const [
+  showStartupOverlay,
+  setShowStartupOverlay,
+] = useState(true);
+const [
+  lastRecognitionTime,
+  setLastRecognitionTime,
+] = useState(0);
+const {
+  driverFrame,
+  recognizedDriver,
+  setRecognizedDriver,
+} = useAI();
+
+const [
+  recognitionCompleted,
+  setRecognitionCompleted,
+] = useState(false);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    if (recognitionCompleted)
+  return;
+
+  if (!driverFrame) return;
+
+  const now = Date.now();
+
+  if (
+    now - lastRecognitionTime <
+    8000
+  ) return;
+
+  const recognizeDriver =
+    async () => {
+
+      try {
+
+        setLastRecognitionTime(
+          now
+        );
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "file",
+          new File(
+            [driverFrame],
+            "driver.jpg",
+            {
+              type: "image/jpeg",
+            }
+          )
+        );
+
+        const response =
+          await fetch(
+            "http://127.0.0.1:8000/recognize-driver",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (data.matched) {
+
+  setDriverStatus(
+    `${data.driver} Connected`
+  );
+  setRecognitionCompleted(
+  true
+);
+
+  if (
+    recognizedDriver?.name !==
+    data.driver
+  ) {
+
+    setRecognizedDriver({
+      name: data.driver,
+      confidence:
+        data.confidence,
+    });
+
+    setShowWelcomeCard(
+      true
+    );
+
+    setTimeout(() => {
+
+      setShowWelcomeCard(
+        false
+      );
+
+    }, 5000);
+  }
+
+} else {
+
+  setDriverStatus(
+    "Unknown Driver"
+  );
+  setRecognitionCompleted(
+  true
+);
+
+ 
+  setShowNewDriverModal(
+  (prev) => prev || true
+);
+}
+
+      } catch (error) {
+
+        console.error(
+          "Recognition failed",
+          error
+        );
+      }
+};
+
+  recognizeDriver();
+
+}, [
+  driverFrame,
+  lastRecognitionTime,
+]);
+
+useEffect(() => {
+
+  const timer =
+    setTimeout(() => {
+
+      setShowStartupOverlay(
+        false
+      );
+
+    }, 2000);
+
+  return () =>
+    clearTimeout(timer);
+
+}, []);
 
   const handleNavClick = (index: number, action: string) => {
     setActiveNav(index);
@@ -59,9 +222,9 @@ function AppContent() {
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col select-none">
       {/* Intro Screen */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
       {/* ── HEADER ── */}
       <header className="h-16 shrink-0 border-b border-border/30 bg-background/80 backdrop-blur-md flex items-center justify-between px-6 gap-4 z-20">
@@ -89,6 +252,18 @@ function AppContent() {
             · Autonomous Mode
           </span>
         </div>
+
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-cyan-500/10 bg-cyan-500/[0.04]">
+
+  <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+
+  <span className="text-xs text-cyan-300">
+
+    {driverStatus}
+
+  </span>
+
+</div>
 
         {/* Right controls */}
         <div className="flex items-center gap-2">
@@ -186,6 +361,66 @@ function AppContent() {
   notifications={notifications}
   onDismiss={dismissNotification}
 />
+
+{/* <button
+  onClick={() =>
+    setShowNewDriverModal(true)
+  }
+  className="fixed top-4 right-4 z-50 px-4 py-2 rounded-xl bg-cyan-500 text-black text-sm font-medium"
+>
+  Test New Driver
+</button> */}
+
+<NewDriverModal
+  open={showNewDriverModal}
+  onClose={() =>
+    setShowNewDriverModal(false)
+  }
+/>
+
+<WelcomeDriverCard
+  open={showWelcomeCard}
+  driverName={
+    recognizedDriver?.name || ""
+  }
+/>
+
+{/* {
+  showStartupOverlay && (
+
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#020817]">
+
+      <div className="text-center">
+
+        <div className="mx-auto w-20 h-20 rounded-[28px] border border-cyan-500/20 bg-cyan-500/10 flex items-center justify-center shadow-[0_0_40px_rgba(0,255,255,0.08)]">
+
+          <Bot className="w-10 h-10 text-cyan-300 animate-pulse" />
+
+        </div>
+
+        <h1 className="mt-8 text-4xl font-bold tracking-tight text-white">
+
+          AI Copilot
+
+        </h1>
+
+        <p className="mt-3 text-sm tracking-wide text-cyan-400 uppercase">
+
+          Initializing Smart Cockpit
+
+        </p>
+
+        <div className="mt-8 w-[280px] h-1.5 rounded-full bg-white/5 overflow-hidden">
+
+          <div className="h-full w-1/2 bg-cyan-400 animate-pulse rounded-full" />
+
+        </div>
+
+      </div>
+
+    </div>
+  )
+} */}
 
     </div>
     
