@@ -21,57 +21,9 @@ type EventLog = {
 import TestPanel from "./TestPanel";
 
 export default function AIVisionLab() {
-
-  const [testMode, setTestMode] = useState(false);
-  const simulateTelemetry = (
-  data: Partial<typeof telemetryData>
-) => {
-
-  setTelemetryData(prev => ({
-    ...prev,
-    ...data,
-  }));
-};
-  const { modals, closeModal, faceDetection,setParkingAssistActive} = useAI();
+  const { modals, closeModal, faceDetection,setParkingAssistActive,telemetryData,setTelemetryData,simulateTelemetry,
+globalTestMode, setGlobalTestMode} = useAI();
   const isOpen = modals.aiVisionLab;
-const [telemetryData, setTelemetryData] = useState({
-
-  eyeMovement: 0,
-
-  blinkRate: 18,
-
-  gazeStability: 95,
-
-  attentionScore: 92,
-
-  fps: 30,
-
-  latency: 42,
-
-  trackingConfidence: 97,
-
-  faceDetected: false,
-
-  isDrowsy: false,
-
-  attentionStatus: "Focused",
-
-  lookingAway: false,
-
-  trackingState: "Lost",
-
-  meshEnabled: false,
-
-  meshConfidence: 0,
-
-  pipelineStatus: "",
-
-  riskLevel: "Low",
-
-  safetyMode: "Monitoring",
-
-  assistState: "Active",
-});
 
 const liveTelemetry = [
   {
@@ -149,6 +101,11 @@ const [eventLogs, setEventLogs] = useState<EventLog[]>([
   {
     type: "info",
     message: "Vision system initialized",
+    time: new Date().toLocaleTimeString(),
+  },
+   {
+    type: "info",
+    message: "Telemetry reset complete",
     time: new Date().toLocaleTimeString(),
   },
 ]);
@@ -378,7 +335,7 @@ ctx.scale(-1, 1);
       
 
       async () => {
-        if (testMode) return;
+        if (globalTestMode) return;
 
         const video =
           webcamRef.current?.video;
@@ -450,36 +407,32 @@ ctx.scale(-1, 1);
 
                 const data =
                   response.data;
-
-                setTelemetryData({
+setTelemetryData(prev => ({
+  ...prev,
 
   eyeMovement:
-    data?.vision?.eye_movement ?? 0,
+    data?.driver?.eyeMovement ?? 0,
 
   blinkRate:
-    data?.driver?.blinkRate ?? 18,
+    data?.driver?.blinkRate ?? 0,
 
   gazeStability:
-    data?.driver?.gazeStability ?? 95,
+    data?.driver?.gazeStability ?? 0,
 
   attentionScore:
-    data?.driver?.attentionScore ?? 92,
+    data?.driver?.attentionScore ?? 0,
 
   fps:
-    data?.vision?.fps ?? 30,
+    data?.system?.fps ?? 0,
 
   latency:
-    data?.vision?.latency ?? 42,
+    data?.system?.latency ?? 0,
 
   trackingConfidence:
-    data?.vision?.meshConfidence
-      ? Math.round(
-          data.vision.meshConfidence * 100
-        )
-      : 0,
+    data?.tracking?.confidence ?? 0,
 
   faceDetected:
-    data?.driver?.faceDetected ?? false,
+    data?.tracking?.faceDetected ?? false,
 
   isDrowsy:
     data?.driver?.isDrowsy ?? false,
@@ -490,8 +443,11 @@ ctx.scale(-1, 1);
   lookingAway:
     data?.driver?.lookingAway ?? false,
 
+  faceCount:
+    data?.tracking?.faceCount ?? 0,
+
   trackingState:
-    data?.vision?.trackingState ?? "Lost",
+    data?.tracking?.state ?? "stable",
 
   meshEnabled:
     data?.vision?.meshEnabled ?? false,
@@ -510,7 +466,7 @@ ctx.scale(-1, 1);
 
   assistState:
     data?.vehicle?.assistState ?? "Active",
-});
+}));
 
               } catch (error) {
 
@@ -542,7 +498,79 @@ ctx.scale(-1, 1);
     );
   };
 
-}, []);
+}, [globalTestMode]);
+
+useEffect(() => {
+
+  if (telemetryData.attentionScore <= 60) {
+
+    setEventLogs(prev => [
+      {
+        type: "warning",
+        message: "Driver distraction detected",
+        time: new Date().toLocaleTimeString(),
+      },
+      ...prev.slice(0, 14),
+    ]);
+  }
+
+}, [telemetryData.attentionScore]);
+useEffect(() => {
+
+  if (telemetryData.attentionScore <= 35) {
+
+    setEventLogs(prev => [
+      {
+        type: "critical",
+        message: "Drowsiness risk detected",
+        time: new Date().toLocaleTimeString(),
+      },
+      ...prev.slice(0, 14),
+    ]);
+  }
+
+}, [telemetryData.attentionScore]);
+
+useEffect(() => {
+
+  if (
+    telemetryData.trackingConfidence <= 20
+  ) {
+
+    setEventLogs(prev => [
+      {
+        type: "warning",
+        message: "Face tracking lost",
+        time: new Date().toLocaleTimeString(),
+      },
+      ...prev.slice(0, 14),
+    ]);
+  }
+
+}, [telemetryData.trackingConfidence]);
+
+const resetTelemetry = () => {
+
+  setTelemetryData(prev => ({
+    ...prev,
+
+    eyeMovement: 0,
+    blinkRate: 18,
+    gazeStability: 95,
+    attentionScore: 92,
+    fps: 30,
+    latency: 42,
+    trackingConfidence: 97,
+
+    faceDetected: false,
+    faceCount: 0,
+    isDrowsy: false,
+  }));
+
+  setParkingAssistActive(false);
+};
+
+
 
 if (!isOpen) return null; 
 
@@ -1141,9 +1169,11 @@ if (!isOpen) return null;
     <TestPanel
   telemetryData={telemetryData}
   simulateTelemetry={simulateTelemetry}
-  testMode={testMode}
-  setTestMode={setTestMode}
+  testMode={globalTestMode}
+  setTestMode={setGlobalTestMode}
   setParkingAssistActive={setParkingAssistActive}
+  resetTelemetry={resetTelemetry}
+  
 />
     </>
   );

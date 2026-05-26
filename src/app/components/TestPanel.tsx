@@ -10,6 +10,7 @@ type TestPanelProps = {
     fps: number;
     latency: number;
     trackingConfidence: number;
+  
   };
 
   simulateTelemetry: (
@@ -25,7 +26,11 @@ type TestPanelProps = {
   setParkingAssistActive: React.Dispatch<
     React.SetStateAction<boolean>
   >;
+
+  resetTelemetry: () => void;
 };
+
+import { useAI } from "../../context/AIContext";
 
 export default function TestPanel({
   telemetryData,
@@ -33,6 +38,7 @@ export default function TestPanel({
   testMode,
   setTestMode,
   setParkingAssistActive,
+  resetTelemetry,
 }: TestPanelProps) {
     const [open, setOpen] = useState(false);
     const driverStates = [
@@ -140,6 +146,18 @@ const vehicleStates = [
       }),
   },
 ];
+const {setTestDriverProfile,setTestEmergencyMode,setTestCollisionWarning} = useAI();
+
+const resetGlobalStates = () => {
+
+  setTestDriverProfile("unknown");
+
+  setTestEmergencyMode(false);
+
+  setTestCollisionWarning(false);
+
+  setParkingAssistActive(false);
+};
 
 const Section = ({
   title,
@@ -242,6 +260,13 @@ return (
           items={vehicleStates}
           color="border-red-500/20 bg-red-500/10 text-red-400"
         />
+
+        <button
+  onClick={resetTelemetry}
+  className="mt-2 w-full rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-red-400"
+>
+  Reset Telemetry
+</button>
 
       </div>
     ) : null}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { CheckCircle, AlertTriangle, X,LucideIcon,Activity,
 
   Coffee,
@@ -32,84 +32,12 @@ interface AIAlert {
 }
 
 export default function AIAlerts() {
-//   const INITIAL_ALERTS: AIAlert[] = [
-
-//   {
-//     id: "1",
-
-//     title: "AI Monitoring Active",
-
-//     message:
-//       "Driver telemetry operating normally.",
-
-//     priority: "monitoring",
-
-//     active: false,
-
-//     timestamp: "now",
-
-//     icon: Activity,
-//   },
-
-//   {
-//     id: "2",
-
-//     title: "Driver Profile Loaded",
-
-//     message:
-//       "Adaptive cockpit preferences restored.",
-
-//     priority: "info",
-
-//     active: false,
-
-//     timestamp: "2m",
-
-//     icon: User,
-//   },
-
-//   {
-//     id: "3",
-
-//     title: "Rest Recommendation",
-
-//     message:
-//       "Extended driving detected. Consider a short break.",
-
-//     priority: "recommendation",
-
-//     active: true,
-
-//     timestamp: "5m",
-
-//     icon: Coffee,
-//   },
-
-//   {
-//     id: "4",
-
-//     title: "Blind Spot Activity",
-
-//     message:
-//       "Vehicle detected in adjacent lane.",
-
-//     priority: "warning",
-
-//     active: true,
-
-//     timestamp: "now",
-
-//     icon: AlertTriangle,
-//   },
-
-// ];
-// const [alerts, setAlerts] =
-//   useState<AIAlert[]>(
-//     INITIAL_ALERTS
-//   );
 
   const {
-  backendEvents
+  backendEvents,
+  testCollisionWarning,
+testEmergencyMode,
+testDriverProfile,
 } = useAI();
 
 const priorityStyles = {
@@ -209,51 +137,6 @@ const priorityStyles = {
   },
 
 };
-// const pushAlert = (
-//   newAlert: AIAlert
-// ) => {
-
-//   setAlerts(prev => {
-
-//     const updated = [
-//       newAlert,
-//       ...prev,
-//     ];
-
-//     if (
-//       updated.length <= 4
-//     ) {
-
-//       return updated;
-
-//     }
-
-//     const inactiveIndex =
-//       updated.findIndex(
-//         alert =>
-//           !alert.active
-//       );
-
-//     if (
-//       inactiveIndex !== -1
-//     ) {
-
-//       updated.splice(
-//         inactiveIndex,
-//         1
-//       );
-
-//       return updated;
-//     }
-
-//     updated.pop();
-
-//     return updated;
-
-//   });
-
-// };
-
 
 const alerts: AIAlert[] =
   backendEvents.map(
@@ -327,6 +210,47 @@ const alerts: AIAlert[] =
     })
   );
 
+  const simulatedAlerts: AIAlert[] = [];
+  if (testCollisionWarning) {
+
+  simulatedAlerts.push({
+    id: "collision-warning",
+    title: "Collision Warning",
+    message: "Potential frontal obstacle detected.",
+    priority: "critical",
+    active: true,
+    timestamp: "now",
+    icon: AlertTriangle,
+  });
+}
+if (testEmergencyMode) {
+
+  simulatedAlerts.push({
+    id: "emergency-mode",
+    title: "Emergency Mode",
+    message: "Emergency intervention activated.",
+    priority: "critical",
+    active: true,
+    timestamp: "now",
+    icon: AlertTriangle,
+  });
+}
+if (testDriverProfile === "known") {
+
+  simulatedAlerts.push({
+    id: "known-driver",
+    title: "Driver Profile Loaded",
+    message: "Welcome back Ramprasad.",
+    priority: "info",
+    active: true,
+    timestamp: "now",
+    icon: User,
+  });
+}
+
+
+
+
   return (
     <div className="flex-1 rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-2.5 flex flex-col gap-1 min-h-0 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
       <div className="flex items-center justify-between shrink-0">
@@ -350,7 +274,7 @@ const alerts: AIAlert[] =
   flex-1
 ">
 
-        {alerts.slice(0,4).map((alert) => {
+        {[...simulatedAlerts, ...alerts].slice(0,4).map((alert) => {
           const Icon = alert.icon;
           
           const priorityColor =

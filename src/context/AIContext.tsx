@@ -59,6 +59,11 @@ export interface ModalStates {
   hazardDialog: boolean;
   lockDialog: boolean;
 }
+//Driverprofile
+type RecognizedDriver = {
+  name: string;
+  confidence: number;
+} | null;
 
 // AI Context State
 interface AIContextState {
@@ -69,6 +74,15 @@ interface AIContextState {
   addProfile: (profile: DriverProfile) => void;
   updateProfile: (id: string, updates: Partial<DriverProfile>) => void;
   deleteProfile: (id: string) => void;
+
+  //driverprofile
+recognizedDriver: RecognizedDriver;
+
+setRecognizedDriver:
+React.Dispatch<
+  React.SetStateAction<RecognizedDriver>
+>;
+
 
   // Vehicle Mode
   vehicleMode: "fuel" | "ev";
@@ -90,13 +104,96 @@ interface AIContextState {
 
   //globalstate
   globalTestMode: boolean;
-  setGlobalTestMode: (mode: boolean) => void;
+  setGlobalTestMode: React.Dispatch<
+  React.SetStateAction<boolean>
+>;
   testDriverProfile: "known" | "guest" | "unknown";
   setTestDriverProfile: (profile: "known" | "guest" | "unknown") => void;
   testEmergencyMode: boolean;
   setTestEmergencyMode: (mode: boolean) => void;
   testCollisionWarning: boolean;
   setTestCollisionWarning: (warning: boolean) => void;
+
+  //telemetry Data
+  telemetryData: {
+  eyeMovement: number;
+  blinkRate: number;
+  gazeStability: number;
+  attentionScore: number;
+  fps: number;
+  latency: number;
+  trackingConfidence: number;
+  faceDetected: boolean;
+  isDrowsy: boolean;
+  attentionStatus: string;
+  headDirection: string;
+  lookingAway: boolean;
+  faceCount: number;
+  trackingState: string;
+  meshEnabled: boolean;
+meshConfidence: number;
+
+pipelineStatus: string;
+
+riskLevel: string;
+
+safetyMode: string;
+
+assistState: string;
+};
+
+setTelemetryData: React.Dispatch<
+  React.SetStateAction<{
+    eyeMovement: number;
+    blinkRate: number;
+    gazeStability: number;
+    attentionScore: number;
+    fps: number;
+    latency: number;
+    trackingConfidence: number;
+    faceDetected: boolean;
+    isDrowsy: boolean;
+    attentionStatus: string;
+    headDirection: string;
+    lookingAway: boolean;
+    faceCount: number;
+    trackingState:
+  | "stable"
+  | "lost"
+  | "searching";
+  meshEnabled: boolean;
+meshConfidence: number;
+
+pipelineStatus: string;
+
+riskLevel: string;
+
+safetyMode: string;
+
+assistState: string;
+  }
+  >
+  
+>;
+
+simulateTelemetry: (
+  data: Partial<{
+    eyeMovement: number;
+    blinkRate: number;
+    gazeStability: number;
+    attentionScore: number;
+    fps: number;
+    latency: number;
+    trackingConfidence: number;
+
+  }>
+) => void;
+
+testMode: boolean;
+
+setTestMode: React.Dispatch<
+  React.SetStateAction<boolean>
+>;
 
 
 
@@ -181,7 +278,9 @@ setBackendEvents: (events: any[]) => void;
 
   // Parking Assist
   parkingAssistActive: boolean;
-  setParkingAssistActive: (active: boolean) => void;
+  setParkingAssistActive: React.Dispatch<
+  React.SetStateAction<boolean>
+>;
 }
 
 const AIContext = createContext<AIContextState | undefined>(undefined);
@@ -215,6 +314,48 @@ const [testEmergencyMode, setTestEmergencyMode] =
   useState(false);
 
 const [testCollisionWarning, setTestCollisionWarning] =
+  useState(false);
+
+  const [telemetryData, setTelemetryData] = useState({
+  eyeMovement: 0,
+  blinkRate: 18,
+  gazeStability: 95,
+  attentionScore: 92,
+  fps: 30,
+  latency: 42,
+  trackingConfidence: 97,
+  faceDetected: false,
+  isDrowsy: false,
+  headDirection: "Center",
+  attentionStatus: "Focused",
+  lookingAway: false,
+  faceCount: 0,
+  trackingState: "stable" as
+  | "stable"
+  | "lost"
+  | "searching",
+   meshEnabled: false,
+  meshConfidence: 0,
+
+  pipelineStatus: "",
+
+  riskLevel: "Low",
+
+  safetyMode: "Monitoring",
+
+  assistState: "Active",
+});
+
+const simulateTelemetry = (
+  data: Partial<typeof telemetryData>
+) => {
+
+  setTelemetryData(prev => ({
+    ...prev,
+    ...data,
+  }));
+};
+const [testMode, setTestMode] =
   useState(false);
 
   const [
@@ -443,10 +584,19 @@ const dismissNotification = (
     }));
   };
 
+  const [
+  recognizedDriver,
+  setRecognizedDriver,
+] = useState<RecognizedDriver>(
+  null
+);
+
   return (
     <AIContext.Provider
       value={{
         currentProfile,
+        recognizedDriver,
+setRecognizedDriver,
         profiles,
         setCurrentProfile,
         addProfile,
@@ -510,6 +660,14 @@ const dismissNotification = (
 
         globalTestMode,
 setGlobalTestMode,
+
+telemetryData,
+setTelemetryData,
+
+simulateTelemetry,
+
+testMode,
+setTestMode,
 
 testDriverProfile,
 setTestDriverProfile,

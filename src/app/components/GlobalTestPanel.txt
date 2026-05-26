@@ -1,0 +1,278 @@
+import { useState } from "react";
+import { FlaskConical, X } from "lucide-react";
+import { useAI } from "../../context/AIContext";
+
+export default function GlobalTestPanel() {
+    const {
+  globalTestMode,
+  setGlobalTestMode,
+
+  testDriverProfile,
+  setTestDriverProfile,
+
+  testEmergencyMode,
+  setTestEmergencyMode,
+
+  testCollisionWarning,
+  setTestCollisionWarning,
+
+  setParkingAssistActive,
+  simulateTelemetry,
+} = useAI();
+const [open, setOpen] = useState(false);
+const Section = ({
+  title,
+  items,
+  color,
+}: {
+  title: string;
+
+  items: {
+    label: string;
+    action: () => void;
+  }[];
+
+  color: string;
+}) => (
+  <div className="mb-4">
+
+    <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      {title}
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+
+      {items.map((item) => (
+
+        <button
+          key={item.label}
+          onClick={item.action}
+          className={`rounded-lg border px-2 py-2 text-[10px] font-semibold uppercase tracking-wide transition-all duration-200 ${color}`}
+        >
+          {item.label}
+        </button>
+
+      ))}
+
+    </div>
+
+  </div>
+);
+
+const driverProfiles = [
+  {
+    label: "Known Driver",
+    action: () =>
+      setTestDriverProfile("known"),
+  },
+
+  {
+    label: "Guest Driver",
+    action: () =>
+      setTestDriverProfile("guest"),
+  },
+
+  {
+    label: "Unknown Driver",
+    action: () =>
+      setTestDriverProfile("unknown"),
+  },
+];
+const driverStates = [
+  {
+    label: "Focused",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        attentionScore: 95,
+        blinkRate: 12,
+        gazeStability: 92,
+        trackingConfidence: 97,
+      });
+    },
+  },
+
+  {
+    label: "Distracted",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        attentionScore: 58,
+        gazeStability: 50,
+      });
+    },
+  },
+
+  {
+    label: "Drowsy",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        attentionScore: 30,
+        blinkRate: 35,
+      });
+    },
+  },
+
+  {
+    label: "Sleeping",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        attentionScore: 10,
+        blinkRate: 2,
+        trackingConfidence: 40,
+      });
+    },
+  },
+];
+
+const trackingStates = [
+  {
+    label: "Tracking Lost",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        trackingConfidence: 15,
+      });
+    },
+  },
+
+  {
+    label: "Low FPS",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        fps: 10,
+        latency: 180,
+      });
+    },
+  },
+
+  {
+    label: "Low Confidence",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        trackingConfidence: 42,
+      });
+    },
+  },
+
+  {
+    label: "Tracking Stable",
+    action: () => {
+      setGlobalTestMode(true);
+      simulateTelemetry({
+        trackingConfidence: 97,
+        fps: 30,
+        latency: 42,
+      });
+    },
+  },
+];
+
+const vehicleStates = [
+  {
+    label: "Parking Assist",
+    action: () =>
+      setParkingAssistActive(true),
+  },
+
+  {
+    label: "Emergency Mode",
+    action: () =>
+      setTestEmergencyMode(true),
+  },
+
+  {
+    label: "Collision Warning",
+    action: () =>
+      setTestCollisionWarning(true),
+  },
+];
+
+const resetGlobalStates = () => {
+
+  setTestDriverProfile("unknown");
+
+  setTestEmergencyMode(false);
+
+  setTestCollisionWarning(false);
+
+  setParkingAssistActive(false);
+};
+
+return (
+  <>{!open && (
+  <button
+    onClick={() => setOpen(true)}
+    className="fixed bottom-4 left-4 z-[999] flex items-center gap-2 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-3 py-2 text-xs font-semibold text-yellow-400 backdrop-blur-md"
+  >
+    <FlaskConical className="size-4" />
+    GLOBAL TEST
+  </button>
+)}
+{open && (
+  <div className="fixed bottom-20 left-4 z-[999] max-h-[80vh] w-[320px] overflow-y-auto rounded-2xl border border-border/20 bg-card/95 p-4 shadow-2xl backdrop-blur-md">
+
+    <div className="mb-4 flex items-center justify-between">
+
+  <div className="text-sm font-semibold uppercase tracking-wider">
+    Global Test Panel
+  </div>
+
+  <button
+    onClick={() => setOpen(false)}
+    className="rounded-md p-1 hover:bg-muted/30"
+  >
+    <X className="size-4" />
+  </button>
+
+</div>
+<button
+  onClick={() =>
+    setGlobalTestMode(prev => !prev)
+  }
+  className={`mb-4 w-full rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
+    globalTestMode
+      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+      : "border-border/20 bg-muted/20 text-muted-foreground"
+  }`}
+>
+  {globalTestMode
+    ? "Global Test Mode Active"
+    : "Backend Mode"}
+</button>
+<Section
+  title="Driver Profiles"
+  items={driverProfiles}
+  color="border-cyan-500/20 bg-cyan-500/10 text-cyan-400"
+/>
+<Section
+  title="Driver States"
+  items={driverStates}
+  color="border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+/>
+<Section
+  title="Tracking States"
+  items={trackingStates}
+  color="border-cyan-500/20 bg-cyan-500/10 text-cyan-400"
+/>
+
+<Section
+  title="Vehicle States"
+  items={vehicleStates}
+  color="border-red-500/20 bg-red-500/10 text-red-400"
+/>
+<button
+  onClick={resetGlobalStates}
+  className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-red-400"
+>
+  Reset Global States
+</button>
+  </div>
+)}
+  </>
+);
+}

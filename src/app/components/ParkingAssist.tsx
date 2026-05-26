@@ -8,6 +8,8 @@ export default function ParkingAssist() {
     parkingAssistActive, 
     setParkingAssistActive,
     drowsiness,
+    testEmergencyMode,
+testCollisionWarning,
   } = useAI();
   
   const [laneSelection, setLaneSelection] = useState<"left" | "right" | null>(null);
@@ -39,6 +41,22 @@ export default function ParkingAssist() {
     // Trigger emergency call
     console.log("Emergency call initiated");
   };
+
+  useEffect(() => {
+
+  if (
+    testEmergencyMode ||
+    testCollisionWarning
+  ) {
+
+    setParkingAssistActive(true);
+  }
+
+}, [
+  testEmergencyMode,
+  testCollisionWarning,
+  setParkingAssistActive,
+]);
 
   if (!parkingAssistActive) return null;
 

@@ -23,6 +23,8 @@ import EmergencyOverlay from "./emergencyOverlay";
 import IntroScreen from "./components/IntroScreen";
 import ParkingAssist from "./components/ParkingAssist";
 
+
+
 const NAV_ITEMS = [
   { icon: Home, label: "Home", action: "home" },
   { icon: LayoutDashboard, label: "Dash", action: "dash" },
@@ -179,9 +181,7 @@ function AppContent() {
       <AIVisionLab />
       <DriverProfile />
      <EmergencyOverlay />
-     <ParkingAssist />
-     
-      
+     <ParkingAssist /> 
       <NotificationSystem
   notifications={notifications}
   onDismiss={dismissNotification}
