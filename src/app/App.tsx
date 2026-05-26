@@ -203,7 +203,7 @@ useEffect(() => {
         false
       );
 
-    }, 2000);
+    }, 1500);
 
   return () =>
     clearTimeout(timer);
@@ -222,9 +222,9 @@ useEffect(() => {
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col select-none">
       {/* Intro Screen */}
-      {/* <AnimatePresence>
+      <AnimatePresence>
         {showIntro && <IntroScreen onComplete={() => setShowIntro(false)} />}
-      </AnimatePresence> */}
+      </AnimatePresence>
 
       {/* ── HEADER ── */}
       <header className="h-16 shrink-0 border-b border-border/30 bg-background/80 backdrop-blur-md flex items-center justify-between px-6 gap-4 z-20">
@@ -385,7 +385,7 @@ useEffect(() => {
   }
 />
 
-{/* {
+{
   showStartupOverlay && (
 
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#020817]">
@@ -420,7 +420,7 @@ useEffect(() => {
 
     </div>
   )
-} */}
+}
 
     </div>
     

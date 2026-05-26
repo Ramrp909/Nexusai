@@ -7,7 +7,7 @@ interface IntroScreenProps {
   duration?: number;
 }
 
-export default function IntroScreen({ onComplete, duration = 2000 }: IntroScreenProps) {
+export default function IntroScreen({ onComplete, duration = 1500 }: IntroScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
