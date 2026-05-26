@@ -25,7 +25,7 @@ export default function AIAssistant() {
     isDrowsy,
     lookingAway,
     telemetryData,
-    recognizedDriver
+    recognizedDriver,
   } = useAI();
 const [voiceState, setVoiceState] =
   useState<VoiceState>("idle");
@@ -219,6 +219,7 @@ const recommendationCards = {
 
 }[assistantMode];
 
+
 useEffect(() => {
 
   if (
@@ -240,35 +241,89 @@ useEffect(() => {
 
 }, [assistantMode]);
 
-  const aiInsight = isDrowsy
-    ? {
-        title: "Fatigue Alert",
-        message: "Critical attention levels detected",
-        status: "Critical",
-      }
-    : lookingAway
-    ? {
-        title: "Distraction Detected",
-        message: "Attention deviation from road",
-        status: "Warning",
-      }
-    : {
-        title: "Attention Optimal",
-        message: "Safe operational status",
-        status: "Stable",
-      };
-
-  const recommendations = isDrowsy
-    ? ["Find rest stop", "Enable safety assist", "Emergency alert"]
-    : lookingAway
-    ? ["Focus on road", "Reduce distractions", "Adjust mirrors"]
-    : ["Maintain focus", "Adaptive monitoring", "Stay alert"];
-
   const statusColors = {
     Stable: "text-emerald-400",
     Warning: "text-yellow-400",
     Critical: "text-red-400",
   };
+
+  const recommendations = [];
+
+if (isDrowsy) {
+
+  recommendations.push(
+    "Take a short break"
+  );
+
+  recommendations.push(
+    "Cabin alert mode active"
+  );
+
+   recommendations.push(
+    "Reduce screen distractions"
+  );
+
+  recommendations.push(
+    "Hydration recommended"
+  );
+}
+
+if (lookingAway) {
+
+  recommendations.push(
+    "Focus on road ahead"
+  );
+
+  recommendations.push(
+    "Driver attention reduced"
+  );
+
+   recommendations.push(
+    "Voice assist available"
+  );
+
+  recommendations.push(
+    "Hands-on steering advised"
+  );
+}
+
+if (
+  telemetryData
+    ?.trackingConfidence < 30
+) {
+
+  recommendations.push(
+    "Adjust seating position"
+  );
+
+  recommendations.push(
+    "Improve cabin lighting"
+  );
+}
+
+if (
+  recommendations.length === 0
+) {
+
+  recommendations.push(
+    "All systems optimal"
+  );
+
+  recommendations.push(
+    "Safe driving detected"
+  );
+
+  recommendations.push(
+    "Cabin environment stable"
+  );
+
+  recommendations.push(
+    "Driver monitoring active"
+  );
+}
+
+
+
 
   return (
     <div className="rounded-[28px] border border-border/30 bg-card/80 backdrop-blur-md shadow-sm p-2 flex flex-col gap-3 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_4px_24px_rgba(6,182,212,0.12)] dark:hover:shadow-[0_4px_24px_rgba(16,185,129,0.12)]">
@@ -364,11 +419,19 @@ useEffect(() => {
 
           <div>
             <p className="text-sm font-medium text-white">
-              Ramprasad
+              {recognizedDriver?.name ||
+  "Unknown Driver"}
             </p>
 
             <p className="text-xs text-slate-400">
-              Safe Driver
+              {isDrowsy
+  ? "Fatigue Detected"
+  : lookingAway
+  ? "Distracted"
+  : telemetryData
+      ?.trackingConfidence < 30
+  ? "Tracking Lost"
+  : "Safe Driver"}
             </p>
           </div>
 
@@ -408,29 +471,40 @@ useEffect(() => {
     {/* SECTION 3 */}
    <div className="mt-1 grid grid-cols-2 gap-1">
 
-  {recommendationCards.map(
-    (card, index) => (
+
+  {recommendations.map(
+    (item, index) => (
 
       <div
         key={index}
-        className={`
-          rounded-lg border px-2 py-1
-          transition-all duration-300
-          ${card.color}
-        `}
+        className="
+          rounded-xl
+          border
+          border-cyan-500/20
+          bg-cyan-500/10
+          p-2
+          text-[10px]
+          text-cyan-200
+          flex
+          items-center
+          justify-center
+          text-center
+          min-h-[52px]
+        "
       >
 
-        <p className="text-[10px] font-medium">
-          {card.label}
-        </p>
+        {item}
 
       </div>
     )
   )}
 
+   
+  
+
+</div>
 </div>
 
   </div>
-    </div>
   );
 }
