@@ -11,6 +11,7 @@ import axios from "axios"
 
 import { drawConnectors }
 from "@mediapipe/drawing_utils";
+import { API_BASE } from "../../services/api";
 
 type EventLog = {
   type: "info" | "warning" | "critical" | "system";
@@ -400,7 +401,7 @@ ctx.scale(-1, 1);
                 const response =
                   await axios.post(
 
-                    "http://127.0.0.1:8000/detect-face",
+                    `${API_BASE}/detect-face`,
 
                     formData
                   );

@@ -7,6 +7,7 @@ import {
   AnimatePresence,
 } from "motion/react";
 import emergencyOverlay from "./emergencyOverlay";
+import { API_BASE } from "../services/api";
 
 // Components
 import DriverMonitor from "./components/DriverMonitor";
@@ -120,7 +121,7 @@ const [
 
         const response =
           await fetch(
-            "http://127.0.0.1:8000/recognize-driver",
+            `${API_BASE}/recognize-driver`,
             {
               method: "POST",
               body: formData,
