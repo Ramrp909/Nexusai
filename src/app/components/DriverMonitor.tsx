@@ -371,9 +371,9 @@ useEffect(() => {
         .distractionWarning,
     });
 
-    playAlertSound(
-      "warning"
-    );
+    // playAlertSound(
+    //   "warning"
+    // );
   }
 
   previousLookingAwayRef.current =
