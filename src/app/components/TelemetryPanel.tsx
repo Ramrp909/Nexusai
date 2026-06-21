@@ -32,7 +32,7 @@ safetyScore,
   blinkRate,
 
    } = useAI();
-   const EXTENDED_TELEMETRY = [
+  const EXTENDED_TELEMETRY = [
 
   {
     title: "AI Confidence",
