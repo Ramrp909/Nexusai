@@ -3,26 +3,9 @@ import { X, Maximize2, Minimize2,  ShieldCheck,
   BrainCircuit,
   Activity,
   Radar,
-  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind, 
+  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind, Smartphone,
   icons} from "lucide-react";
 import { useAI } from "../../context/AIContext";
-
-// const EXTENDED_TELEMETRY = [
-//   { icon: Target, title: "AI Scan Status", value: "Active", status: "green" },
-//   { icon: Eye, title: "Attention Level", value: "95%", status: "green" },
-//   { icon: Camera, title: "Detected Faces", value: "1", status: "green" },
-//   { icon: Activity, title: "Posture Quality", value: "Good", status: "green" },
-//   { icon: Thermometer, title: "Cabin Temperature", value: "22°C", status: "green" },
-//   { icon: Gauge, title: "Engine RPM", value: "3200", status: "yellow" },
-//   { icon: Battery, title: "Battery Health", value: "87%", status: "green" },
-//   { icon: Wind, title: "Air Quality", value: "Excellent", status: "green" },
-//   { icon: Activity, title: "Vibration Sensors", value: "Normal", status: "green" },
-//   { icon: Thermometer, title: "Tire Pressure", value: "32 PSI", status: "green" },
-//   { icon: Camera, title: "Blind Spot", value: "Clear", status: "green" },
-//   { icon: Target, title: "Lane Assist", value: "Engaged", status: "green" },
-// ];
-
-
 
 
 export default function TelemetryPanel() {
@@ -37,6 +20,13 @@ export default function TelemetryPanel() {
   headDirection,
 
   isDrowsy,
+  isYawning,
+isTalking,
+phoneDetected,
+
+fatigueLevel,
+
+safetyScore,
 
   lookingAway,
   blinkRate,
@@ -58,6 +48,20 @@ export default function TelemetryPanel() {
 
     icon: BrainCircuit,
   },
+  {
+  title: "Safety Score",
+
+  value: `${safetyScore}/100`,
+
+  status:
+    safetyScore >= 80
+      ? "Stable"
+      : safetyScore >= 60
+      ? "Warning"
+      : "Critical",
+
+  icon: ShieldCheck,
+},
 
   {
     title: "Face Tracking",
@@ -87,14 +91,80 @@ export default function TelemetryPanel() {
 
     icon: Radar,
   },
+  
+{
+  title: "Fatigue",
+
+  value: fatigueLevel,
+
+  status:
+    fatigueLevel === "High"
+      ? "Critical"
+      : fatigueLevel === "Medium"
+      ? "Warning"
+      : "Stable",
+
+  icon: Thermometer,
+},
+{
+  title: "Phone Usage",
+
+  value:
+    phoneDetected
+      ? "Detected"
+      : "Clear",
+
+  status:
+    phoneDetected
+      ? "Critical"
+      : "Stable",
+
+  icon: Smartphone,
+},
+{
+  title: "Yawning",
+
+  value:
+    isYawning
+      ? "Detected"
+      : "Normal",
+
+  status:
+    isYawning
+      ? "Warning"
+      : "Stable",
+
+  icon: Wind,
+},
+// {
+//   title: "Talking",
+
+//   value:
+//     isTalking
+//       ? "Detected"
+//       : "Silent",
+
+//   status:
+//     isTalking
+//       ? "Tracking"
+//       : "Stable",
+
+//   icon: Activity,
+// },
 
   {
     title: "Driver State",
-
     value:
-      isDrowsy
-        ? "Drowsy"
-        : attentionStatus,
+  phoneDetected
+    ? "Phone Usage"
+
+    : isDrowsy
+    ? "Drowsy"
+
+    : isYawning
+    ? "Yawning"
+
+    : attentionStatus,
 
     status:
       isDrowsy
@@ -104,21 +174,7 @@ export default function TelemetryPanel() {
     icon: Eye,
   },
 
-  {
-    title: "AI Pipeline",
-
-    value:
-      isDrowsy
-        ? "Escalated"
-        : "Operational",
-
-    status:
-      isDrowsy
-        ? "Critical"
-        : "Stable",
-
-    icon: Activity,
-  },
+  
 
   {
     title: "Monitoring",
@@ -139,7 +195,22 @@ export default function TelemetryPanel() {
         : attentionScore > 4
         ? "Warning"
         : "Critical",
-        icon: Eye, }
+        icon: Eye, },
+        {
+    title: "AI Pipeline",
+
+    value:
+      isDrowsy
+        ? "Escalated"
+        : "Operational",
+
+    status:
+      isDrowsy
+        ? "Critical"
+        : "Stable",
+
+    icon: Activity,
+  },
 
 ];
 
@@ -216,6 +287,8 @@ const telemetryStyles = {
   },
 
 };
+
+
   const isOpen = modals.telemetryPanel;
   const isFullscreen = modals.telemetryFullscreen;
 

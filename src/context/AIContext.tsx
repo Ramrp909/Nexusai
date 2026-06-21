@@ -170,6 +170,13 @@ React.Dispatch<
   trackingConfidence: number;
   faceDetected: boolean;
   isDrowsy: boolean;
+isYawning: boolean;
+isTalking: boolean;
+phoneDetected: boolean;
+
+fatigueLevel: string;
+
+safetyScore: number;
   attentionStatus: string;
   headDirection: string;
   lookingAway: boolean;
@@ -198,6 +205,13 @@ setTelemetryData: React.Dispatch<
     trackingConfidence: number;
     faceDetected: boolean;
     isDrowsy: boolean;
+    isYawning: boolean;
+isTalking: boolean;
+phoneDetected: boolean;
+
+fatigueLevel: string;
+
+safetyScore: number;
     attentionStatus: string;
     headDirection: string;
     lookingAway: boolean;
@@ -284,6 +298,26 @@ setTestMode: React.Dispatch<
   //Drowsiness
   isDrowsy: boolean;
   setIsDrowsy: (drowsy: boolean) => void;
+
+  // Yawning
+isYawning: boolean;
+setIsYawning: (yawning: boolean) => void;
+
+// Talking
+isTalking: boolean;
+setIsTalking: (talking: boolean) => void;
+
+// Phone Detection
+phoneDetected: boolean;
+setPhoneDetected: (detected: boolean) => void;
+
+// Fatigue Level
+fatigueLevel: string;
+setFatigueLevel: (level: string) => void;
+
+// Safety Score
+safetyScore: number;
+setSafetyScore: (score: number) => void;
 
   //Looking Away
   lookingAway: boolean;
@@ -508,6 +542,16 @@ const [testEmergencyMode, setTestEmergencyMode] =
 const [testCollisionWarning, setTestCollisionWarning] =
   useState(false);
 
+  const [isYawning, setIsYawning] = useState(false);
+
+const [isTalking, setIsTalking] = useState(false);
+
+const [phoneDetected, setPhoneDetected] = useState(false);
+
+const [fatigueLevel, setFatigueLevel] = useState("Low");
+
+const [safetyScore, setSafetyScore] = useState(100);
+
   const [telemetryData, setTelemetryData] = useState({
   eyeMovement: 0,
   blinkRate: 18,
@@ -518,6 +562,13 @@ const [testCollisionWarning, setTestCollisionWarning] =
   trackingConfidence: 97,
   faceDetected: false,
   isDrowsy: false,
+  isYawning: false,
+isTalking: false,
+phoneDetected: false,
+
+fatigueLevel: "Low",
+
+safetyScore: 100,
   headDirection: "Center",
   attentionStatus: "Focused",
   lookingAway: false,
@@ -880,6 +931,16 @@ setDriverFrame,
         setHeadDirection,
         isDrowsy,
         setIsDrowsy,
+        isYawning,
+        setIsYawning,
+        isTalking,
+        setIsTalking,
+        phoneDetected,
+        setPhoneDetected,
+        fatigueLevel,
+        setFatigueLevel,
+        safetyScore,
+        setSafetyScore,
         lookingAway,
         setLookingAway, 
         notifications,

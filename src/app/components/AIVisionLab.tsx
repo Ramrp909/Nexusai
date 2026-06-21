@@ -436,6 +436,13 @@ setTelemetryData(prev => ({
 
   isDrowsy:
     data?.driver?.isDrowsy ?? false,
+  isYawning: data.driver.isYawning,
+isTalking: data.driver.isTalking,
+phoneDetected: data.driver.phoneDetected,
+
+fatigueLevel: data.driver.fatigueLevel,
+
+safetyScore: data.driver.safetyScore,
 
   attentionStatus:
     data?.driver?.attentionStatus ?? "Focused",
@@ -565,6 +572,13 @@ const resetTelemetry = () => {
     faceDetected: false,
     faceCount: 0,
     isDrowsy: false,
+    isYawning: false,
+isTalking: false,
+phoneDetected: false,
+
+fatigueLevel: "Low",
+
+safetyScore: 100,
   }));
 
   setParkingAssistActive(false);
