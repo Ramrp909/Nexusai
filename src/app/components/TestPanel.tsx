@@ -1,7 +1,14 @@
 import { useState } from "react";
+<<<<<<< HEAD
 import { FlaskConical, X } from "lucide-react";
 import { motion } from "framer-motion";
 
+=======
+import { FlaskConical, Import, X } from "lucide-react";
+import { motion } from "framer-motion";
+
+
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 type TestPanelProps = {
   telemetryData: {
     eyeMovement: number;
@@ -32,6 +39,10 @@ type TestPanelProps = {
 };
 
 import { useAI } from "../../context/AIContext";
+<<<<<<< HEAD
+=======
+import { API_BASE } from "../../services/api";
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 export default function TestPanel({
   telemetryData,
@@ -167,7 +178,11 @@ const clearDriverProfiles =
 
       const response =
         await fetch(
+<<<<<<< HEAD
           "http://127.0.0.1:8000/clear-drivers",
+=======
+          `${API_BASE}/clear-drivers`,
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
           {
             method: "DELETE",
           }

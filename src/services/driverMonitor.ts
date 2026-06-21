@@ -1,6 +1,26 @@
 import { API_BASE } from "./api";
 
+<<<<<<< HEAD
 
+=======
+// export interface DriverMonitorResponse {
+
+//   faceDetected: boolean;
+
+//   faceCount: number;
+
+//   isDrowsy: boolean;
+
+//   attentionStatus: string;
+
+//   headDirection: string;
+
+//   lookingAway: boolean;
+
+//   attentionScore: number;
+
+// }
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 export interface DriverMonitorResponse {
 
@@ -11,6 +31,7 @@ export interface DriverMonitorResponse {
     faceCount: number;
 
     isDrowsy: boolean;
+<<<<<<< HEAD
      isYawning: boolean;
   isTalking: boolean;
 
@@ -19,6 +40,8 @@ export interface DriverMonitorResponse {
   fatigueLevel: string;
 
   safetyScore: number;
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
     attentionStatus: string;
     blinkRate :number;

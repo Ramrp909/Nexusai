@@ -3,10 +3,34 @@ import { X, Maximize2, Minimize2,  ShieldCheck,
   BrainCircuit,
   Activity,
   Radar,
+<<<<<<< HEAD
   Target, Eye, Camera, Thermometer, Gauge, Battery, Wind, Smartphone,
   icons} from "lucide-react";
 import { useAI } from "../../context/AIContext";
 
+=======
+  Target, Eye, Camera, Thermometer, Gauge, Battery, Wind, 
+  icons} from "lucide-react";
+import { useAI } from "../../context/AIContext";
+
+// const EXTENDED_TELEMETRY = [
+//   { icon: Target, title: "AI Scan Status", value: "Active", status: "green" },
+//   { icon: Eye, title: "Attention Level", value: "95%", status: "green" },
+//   { icon: Camera, title: "Detected Faces", value: "1", status: "green" },
+//   { icon: Activity, title: "Posture Quality", value: "Good", status: "green" },
+//   { icon: Thermometer, title: "Cabin Temperature", value: "22°C", status: "green" },
+//   { icon: Gauge, title: "Engine RPM", value: "3200", status: "yellow" },
+//   { icon: Battery, title: "Battery Health", value: "87%", status: "green" },
+//   { icon: Wind, title: "Air Quality", value: "Excellent", status: "green" },
+//   { icon: Activity, title: "Vibration Sensors", value: "Normal", status: "green" },
+//   { icon: Thermometer, title: "Tire Pressure", value: "32 PSI", status: "green" },
+//   { icon: Camera, title: "Blind Spot", value: "Clear", status: "green" },
+//   { icon: Target, title: "Lane Assist", value: "Engaged", status: "green" },
+// ];
+
+
+
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 export default function TelemetryPanel() {
 
@@ -20,6 +44,7 @@ export default function TelemetryPanel() {
   headDirection,
 
   isDrowsy,
+<<<<<<< HEAD
   isYawning,
 isTalking,
 phoneDetected,
@@ -27,6 +52,8 @@ phoneDetected,
 fatigueLevel,
 
 safetyScore,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
   lookingAway,
   blinkRate,
@@ -48,6 +75,7 @@ safetyScore,
 
     icon: BrainCircuit,
   },
+<<<<<<< HEAD
   {
   title: "Safety Score",
 
@@ -62,6 +90,8 @@ safetyScore,
 
   icon: ShieldCheck,
 },
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
   {
     title: "Face Tracking",
@@ -91,6 +121,7 @@ safetyScore,
 
     icon: Radar,
   },
+<<<<<<< HEAD
   
 {
   title: "Fatigue",
@@ -165,6 +196,16 @@ safetyScore,
     ? "Yawning"
 
     : attentionStatus,
+=======
+
+  {
+    title: "Driver State",
+
+    value:
+      isDrowsy
+        ? "Drowsy"
+        : attentionStatus,
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
     status:
       isDrowsy
@@ -174,7 +215,25 @@ safetyScore,
     icon: Eye,
   },
 
+<<<<<<< HEAD
   
+=======
+  {
+    title: "AI Pipeline",
+
+    value:
+      isDrowsy
+        ? "Escalated"
+        : "Operational",
+
+    status:
+      isDrowsy
+        ? "Critical"
+        : "Stable",
+
+    icon: Activity,
+  },
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
   {
     title: "Monitoring",
@@ -195,6 +254,7 @@ safetyScore,
         : attentionScore > 4
         ? "Warning"
         : "Critical",
+<<<<<<< HEAD
         icon: Eye, },
         {
     title: "AI Pipeline",
@@ -211,6 +271,9 @@ safetyScore,
 
     icon: Activity,
   },
+=======
+        icon: Eye, }
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 ];
 
@@ -287,8 +350,11 @@ const telemetryStyles = {
   },
 
 };
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   const isOpen = modals.telemetryPanel;
   const isFullscreen = modals.telemetryFullscreen;
 

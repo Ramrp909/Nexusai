@@ -170,6 +170,7 @@ React.Dispatch<
   trackingConfidence: number;
   faceDetected: boolean;
   isDrowsy: boolean;
+<<<<<<< HEAD
 isYawning: boolean;
 isTalking: boolean;
 phoneDetected: boolean;
@@ -177,6 +178,8 @@ phoneDetected: boolean;
 fatigueLevel: string;
 
 safetyScore: number;
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   attentionStatus: string;
   headDirection: string;
   lookingAway: boolean;
@@ -205,6 +208,7 @@ setTelemetryData: React.Dispatch<
     trackingConfidence: number;
     faceDetected: boolean;
     isDrowsy: boolean;
+<<<<<<< HEAD
     isYawning: boolean;
 isTalking: boolean;
 phoneDetected: boolean;
@@ -212,6 +216,8 @@ phoneDetected: boolean;
 fatigueLevel: string;
 
 safetyScore: number;
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
     attentionStatus: string;
     headDirection: string;
     lookingAway: boolean;
@@ -299,6 +305,7 @@ setTestMode: React.Dispatch<
   isDrowsy: boolean;
   setIsDrowsy: (drowsy: boolean) => void;
 
+<<<<<<< HEAD
   // Yawning
 isYawning: boolean;
 setIsYawning: (yawning: boolean) => void;
@@ -319,6 +326,8 @@ setFatigueLevel: (level: string) => void;
 safetyScore: number;
 setSafetyScore: (score: number) => void;
 
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   //Looking Away
   lookingAway: boolean;
   setLookingAway: (lookingAway: boolean) => void;
@@ -542,6 +551,7 @@ const [testEmergencyMode, setTestEmergencyMode] =
 const [testCollisionWarning, setTestCollisionWarning] =
   useState(false);
 
+<<<<<<< HEAD
   const [isYawning, setIsYawning] = useState(false);
 
 const [isTalking, setIsTalking] = useState(false);
@@ -552,6 +562,8 @@ const [fatigueLevel, setFatigueLevel] = useState("Low");
 
 const [safetyScore, setSafetyScore] = useState(100);
 
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   const [telemetryData, setTelemetryData] = useState({
   eyeMovement: 0,
   blinkRate: 18,
@@ -562,6 +574,7 @@ const [safetyScore, setSafetyScore] = useState(100);
   trackingConfidence: 97,
   faceDetected: false,
   isDrowsy: false,
+<<<<<<< HEAD
   isYawning: false,
 isTalking: false,
 phoneDetected: false,
@@ -569,6 +582,8 @@ phoneDetected: false,
 fatigueLevel: "Low",
 
 safetyScore: 100,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   headDirection: "Center",
   attentionStatus: "Focused",
   lookingAway: false,
@@ -931,6 +946,7 @@ setDriverFrame,
         setHeadDirection,
         isDrowsy,
         setIsDrowsy,
+<<<<<<< HEAD
         isYawning,
         setIsYawning,
         isTalking,
@@ -941,6 +957,8 @@ setDriverFrame,
         setFatigueLevel,
         safetyScore,
         setSafetyScore,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
         lookingAway,
         setLookingAway, 
         notifications,

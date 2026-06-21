@@ -11,6 +11,10 @@ import axios from "axios"
 
 import { drawConnectors }
 from "@mediapipe/drawing_utils";
+<<<<<<< HEAD
+=======
+import { API_BASE } from "../../services/api";
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 type EventLog = {
   type: "info" | "warning" | "critical" | "system";
@@ -400,7 +404,11 @@ ctx.scale(-1, 1);
                 const response =
                   await axios.post(
 
+<<<<<<< HEAD
                     "http://127.0.0.1:8000/detect-face",
+=======
+                    `${API_BASE}/detect-face`,
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
                     formData
                   );
@@ -436,6 +444,7 @@ setTelemetryData(prev => ({
 
   isDrowsy:
     data?.driver?.isDrowsy ?? false,
+<<<<<<< HEAD
   isYawning: data.driver.isYawning,
 isTalking: data.driver.isTalking,
 phoneDetected: data.driver.phoneDetected,
@@ -443,6 +452,8 @@ phoneDetected: data.driver.phoneDetected,
 fatigueLevel: data.driver.fatigueLevel,
 
 safetyScore: data.driver.safetyScore,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
   attentionStatus:
     data?.driver?.attentionStatus ?? "Focused",
@@ -572,6 +583,7 @@ const resetTelemetry = () => {
     faceDetected: false,
     faceCount: 0,
     isDrowsy: false,
+<<<<<<< HEAD
     isYawning: false,
 isTalking: false,
 phoneDetected: false,
@@ -579,6 +591,8 @@ phoneDetected: false,
 fatigueLevel: "Low",
 
 safetyScore: 100,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   }));
 
   setParkingAssistActive(false);

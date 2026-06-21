@@ -40,6 +40,7 @@ const canvasRef =
   attentionStatus,
   headDirection,
   isDrowsy,
+<<<<<<< HEAD
   isYawning,
   setIsYawning,
   isTalking,
@@ -50,6 +51,8 @@ fatigueLevel,
 setFatigueLevel,
 safetyScore,
 setSafetyScore,
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   lookingAway,
     addNotification,
     setShowDangerAlert,
@@ -298,6 +301,7 @@ setHeadDirection(
 setIsDrowsy(
   driver.isDrowsy
 );
+<<<<<<< HEAD
 setIsYawning(driver.isYawning);
 
 setIsTalking(driver.isTalking);
@@ -307,6 +311,8 @@ setPhoneDetected(driver.phoneDetected);
 setFatigueLevel(driver.fatigueLevel);
 
 setSafetyScore(driver.safetyScore);
+=======
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 setLookingAway(
   driver.lookingAway
@@ -390,9 +396,15 @@ useEffect(() => {
         .distractionWarning,
     });
 
+<<<<<<< HEAD
     playAlertSound(
       "warning"
     );
+=======
+    // playAlertSound(
+    //   "warning"
+    // );
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
   }
 
   previousLookingAwayRef.current =

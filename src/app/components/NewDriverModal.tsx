@@ -1,6 +1,10 @@
 import { X, User, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useAI } from "../../context/AIContext";
+<<<<<<< HEAD
+=======
+import { API_BASE } from "../../services/api";
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
 
 type NewDriverModalProps = {
   open: boolean;
@@ -112,7 +116,11 @@ const [assistantVoice, setAssistantVoice] =
       const response =
         await fetch(
          
+<<<<<<< HEAD
            "http://127.0.0.1:8000/register-driver",
+=======
+           `${API_BASE}/register-driver`,
+>>>>>>> 0b5799bef361557c9f0b6ad43f9d467d3568cd03
           {
             method: "POST",
             body: formData,
