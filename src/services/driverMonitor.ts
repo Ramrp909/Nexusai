@@ -13,6 +13,9 @@ export interface DriverMonitorResponse {
     isDrowsy: boolean;
      isYawning: boolean;
   isTalking: boolean;
+  warningCount: number;
+emergencyMode: boolean;
+recommendedAction: string;
 
   phoneDetected: boolean;
 

@@ -61,7 +61,15 @@ setDriverFrame,
 canTriggerAlert,
 playAlertSound,
 speak,
-setParkingAssistActive
+setParkingAssistActive,
+warningCount,
+setWarningCount,
+
+emergencyMode,
+setEmergencyMode,
+
+recommendedAction,
+setRecommendedAction,
 } = useAI();
 
 const previousDrowsyRef =
@@ -311,6 +319,17 @@ setSafetyScore(driver.safetyScore);
 setLookingAway(
   driver.lookingAway
 );
+setWarningCount(
+  driver.warningCount
+);
+
+setEmergencyMode(
+  driver.emergencyMode
+);
+
+setRecommendedAction(
+  driver.recommendedAction
+);
 setVisionTelemetry(
   vision
 );
@@ -390,9 +409,9 @@ useEffect(() => {
         .distractionWarning,
     });
 
-    playAlertSound(
-      "warning"
-    );
+    // playAlertSound(
+    //   "warning"
+    // );
   }
 
   previousLookingAwayRef.current =
@@ -419,9 +438,9 @@ useEffect(() => {
       )
     ) {
 
-      playAlertSound(
-        "success"
-      );
+      // playAlertSound(
+      //   "success"
+      // );
     }
   }
 
@@ -434,136 +453,168 @@ useEffect(() => {
   attentionStatus,
 ]);
 
+// useEffect(() => {
+//     if (
+//   !initializedRef.current ||
+//   !appReadyRef.current
+// ) {
+
+//     initializedRef.current =
+//       true;
+
+//     return;
+//   }
+
+//   /* DRIVER RECOVERED */
+
+//   if (!isDrowsy) {
+
+//     if (
+//       drowsyTimeoutRef.current
+//     ) {
+
+//       clearTimeout(
+//         drowsyTimeoutRef.current
+//       );
+
+//       drowsyTimeoutRef.current =
+//         null;
+//     }
+
+//     return;
+//   }
+
+//   /* STAGE 1
+//      DROWSINESS WARNING
+//   */
+
+//   if (
+//     canTriggerAlert(
+//       "drowsy-warning",
+//       10000
+//     )
+//   ) {
+
+//     addNotification({
+//       ...demoNotifications
+//         .drowsinessDetected,
+//     });
+
+//     playAlertSound(
+//       "warning"
+//     );
+//   }
+
+//   /* STAGE 2
+//      EMERGENCY OVERLAY
+//   */
+
+//   if (
+//     !drowsyTimeoutRef.current
+//   ) {
+
+//     drowsyTimeoutRef.current =
+//       setTimeout(() => {
+
+//         if (!isDrowsy)
+//           return;
+
+//         setShowDangerAlert(
+//           true
+//         );
+
+//         playAlertSound(
+//           "critical"
+//         );
+
+//         speak(
+//           "Critical fatigue detected",
+//           "critical"
+//         );
+
+//         /* HIDE OVERLAY */
+
+//         setTimeout(() => {
+
+//           setShowDangerAlert(
+//             false
+//           );
+
+//         }, 5000);
+
+//         /* STAGE 3
+//            PARKING ASSIST
+//         */
+
+//         setTimeout(() => {
+
+//           if (!isDrowsy)
+//             return;
+
+//           setParkingAssistActive(
+//             true
+//           );
+
+//           playAlertSound(
+//             "critical"
+//           );
+
+//           speak(
+//             "Emergency mode detected. Parking assist activated for safety.",
+//             "critical"
+//           );
+
+//           /* KEEP PA OPEN */
+
+//           setTimeout(() => {
+
+//             setParkingAssistActive(
+//               false
+//             );
+
+//           }, 3000);
+
+//         }, 5000);
+
+//         drowsyTimeoutRef.current =
+//           null;
+
+//       }, 5000);
+//   }
+
+// }, [isDrowsy]);
+
 useEffect(() => {
-    if (
-  !initializedRef.current ||
-  !appReadyRef.current
-) {
 
-    initializedRef.current =
-      true;
-
+  if (!emergencyMode)
     return;
-  }
 
-  /* DRIVER RECOVERED */
+  setShowDangerAlert(
+    true
+  );
 
-  if (!isDrowsy) {
+  playAlertSound(
+    "critical"
+  );
 
-    if (
-      drowsyTimeoutRef.current
-    ) {
+  speak(
+    "Emergency mode activated. Pull over immediately.",
+    "critical"
+  );
 
-      clearTimeout(
-        drowsyTimeoutRef.current
-      );
+  setTimeout(() => {
 
-      drowsyTimeoutRef.current =
-        null;
-    }
-
-    return;
-  }
-
-  /* STAGE 1
-     DROWSINESS WARNING
-  */
-
-  if (
-    canTriggerAlert(
-      "drowsy-warning",
-      10000
-    )
-  ) {
-
-    addNotification({
-      ...demoNotifications
-        .drowsinessDetected,
-    });
-
-    playAlertSound(
-      "warning"
+    setShowDangerAlert(
+      false
     );
-  }
 
-  /* STAGE 2
-     EMERGENCY OVERLAY
-  */
+    setParkingAssistActive(
+      true
+    );
 
-  if (
-    !drowsyTimeoutRef.current
-  ) {
+  }, 3000);
 
-    drowsyTimeoutRef.current =
-      setTimeout(() => {
-
-        if (!isDrowsy)
-          return;
-
-        setShowDangerAlert(
-          true
-        );
-
-        playAlertSound(
-          "critical"
-        );
-
-        speak(
-          "Critical fatigue detected",
-          "critical"
-        );
-
-        /* HIDE OVERLAY */
-
-        setTimeout(() => {
-
-          setShowDangerAlert(
-            false
-          );
-
-        }, 5000);
-
-        /* STAGE 3
-           PARKING ASSIST
-        */
-
-        setTimeout(() => {
-
-          if (!isDrowsy)
-            return;
-
-          setParkingAssistActive(
-            true
-          );
-
-          playAlertSound(
-            "critical"
-          );
-
-          speak(
-            "Emergency mode detected. Parking assist activated for safety.",
-            "critical"
-          );
-
-          /* KEEP PA OPEN */
-
-          setTimeout(() => {
-
-            setParkingAssistActive(
-              false
-            );
-
-          }, 3000);
-
-        }, 5000);
-
-        drowsyTimeoutRef.current =
-          null;
-
-      }, 5000);
-  }
-
-}, [isDrowsy]);
+}, [emergencyMode]);
 
   if (isDriverMonitorMinimized) {
     return (

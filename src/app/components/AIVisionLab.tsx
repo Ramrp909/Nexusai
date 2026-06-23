@@ -440,6 +440,7 @@ setTelemetryData(prev => ({
 
   attentionStatus:
     data?.driver?.attentionStatus ?? "Focused",
+    
 
   lookingAway:
     data?.driver?.lookingAway ?? false,

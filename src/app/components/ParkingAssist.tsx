@@ -8,6 +8,9 @@ export default function ParkingAssist() {
     parkingAssistActive, 
     setParkingAssistActive,
     drowsiness,
+    warningCount,
+emergencyMode,
+recommendedAction,
     testEmergencyMode,
 testCollisionWarning,
   } = useAI();
@@ -77,7 +80,7 @@ testCollisionWarning,
           className="rounded-3xl border border-border/30 bg-card/95 backdrop-blur-md shadow-2xl w-full max-w-2xl mx-4 overflow-hidden"
         >
           {/* Header */}
-          <div className="border-b border-border/20 bg-gradient-to-r from-red-500/10 to-orange-500/10 p-6 flex items-center justify-between">
+          <div className="border-b border-border/20 bg-gradient-to-r from-red-500/10 to-orange-500/10 p-6 flex items-center justify-between mt-10">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-red-500/20">
                 <AlertTriangle className="size-6 text-red-400" />
@@ -159,16 +162,20 @@ testCollisionWarning,
               <div className="text-sm font-semibold text-foreground">Safety Status</div>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-primary">{drowsiness.duration}s</div>
-                  <div className="text-xs text-muted-foreground mt-1">Fatigue Duration</div>
+                  <div className="text-2xl font-bold text-primary">{emergencyMode}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Emergency Mode</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-yellow-400">{drowsiness.count}</div>
+                  <div className="text-2xl font-bold text-yellow-400">{warningCount}</div>
                   <div className="text-xs text-muted-foreground mt-1">Detections</div>
                 </div>
-                <div>
+                {/* <div>
                   <div className="text-2xl font-bold text-green-400">85%</div>
                   <div className="text-xs text-muted-foreground mt-1">Safety Ready</div>
+                </div> */}
+                <div>
+                  <div className="text-2xl font-bold text-green-400">{recommendedAction}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Safety Status</div>
                 </div>
               </div>
             </div>

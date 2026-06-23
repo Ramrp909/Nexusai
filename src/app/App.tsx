@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, User, Sun, Moon, Cloud, Car, Settings, Home, LayoutDashboard, Bot } from "lucide-react";
+import { Bell, User, Sun, Moon, Cloud, Car, Settings, Home, LayoutDashboard, Bot,ShieldAlert } from "lucide-react";
 import { AIContextProvider, useAI } from "../context/AIContext";
 import NotificationSystem from "./components/NotificationSystem";
 import {
@@ -38,7 +38,9 @@ const NAV_ITEMS = [
 ];
 
 function AppContent() {
-  const { isDark, setIsDark, openModal } = useAI();
+  const { isDark, setIsDark, openModal,warningCount,
+emergencyMode,parkingAssistActive, 
+    setParkingAssistActive, } = useAI();
   const [activeNav, setActiveNav] = useState(1);
   const [showIntro, setShowIntro] = useState(true);
   const {
@@ -220,6 +222,18 @@ useEffect(() => {
     }
   };
 
+  const paColor =
+  warningCount >= 3
+    ? "bg-red-500"
+
+    : warningCount === 2
+    ? "bg-orange-500"
+
+    : warningCount === 1
+    ? "bg-yellow-500"
+
+    : "bg-slate-500";
+
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col select-none">
       {/* Intro Screen */}
@@ -316,6 +330,68 @@ useEffect(() => {
               </button>
             );
           })}
+          <div className="flex-1" />
+
+<button
+  onClick={() =>
+    setParkingAssistActive(true)
+  }
+  className="
+    relative
+
+    w-14
+    h-14
+
+    rounded-full
+
+    flex
+    items-center
+    justify-center
+
+    border
+    border-border/30
+
+    bg-card
+  "
+>
+  <div
+    className={`
+      absolute
+      inset-0
+
+      rounded-full
+
+      ${paColor}
+
+      opacity-20
+
+      ${
+        emergencyMode
+          ? "animate-ping"
+          : ""
+      }
+    `}
+  />
+
+  <ShieldAlert
+    className={`
+      size-6
+
+      ${
+        warningCount >= 3
+          ? "text-red-400"
+
+          : warningCount === 2
+          ? "text-orange-400"
+
+          : warningCount === 1
+          ? "text-yellow-400"
+
+          : "text-muted-foreground"
+      }
+    `}
+  />
+</button>
         </nav>
 
         {/* MAIN AREA */}

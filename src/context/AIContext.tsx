@@ -177,6 +177,9 @@ phoneDetected: boolean;
 fatigueLevel: string;
 
 safetyScore: number;
+warningCount: number;
+emergencyMode: boolean;
+recommendedAction: string;
   attentionStatus: string;
   headDirection: string;
   lookingAway: boolean;
@@ -184,13 +187,9 @@ safetyScore: number;
   trackingState: string;
   meshEnabled: boolean;
 meshConfidence: number;
-
 pipelineStatus: string;
-
 riskLevel: string;
-
 safetyMode: string;
-
 assistState: string;
 };
 
@@ -208,6 +207,9 @@ setTelemetryData: React.Dispatch<
     isYawning: boolean;
 isTalking: boolean;
 phoneDetected: boolean;
+warningCount: number;
+emergencyMode: boolean;
+recommendedAction: string;
 
 fatigueLevel: string;
 
@@ -310,6 +312,17 @@ setIsTalking: (talking: boolean) => void;
 // Phone Detection
 phoneDetected: boolean;
 setPhoneDetected: (detected: boolean) => void;
+
+warningCount: number;
+setWarningCount: (count: number) => void;
+
+emergencyMode: boolean;
+setEmergencyMode: (active: boolean) => void;
+
+recommendedAction: string;
+setRecommendedAction: (
+  action: string
+) => void;
 
 // Fatigue Level
 fatigueLevel: string;
@@ -552,6 +565,23 @@ const [fatigueLevel, setFatigueLevel] = useState("Low");
 
 const [safetyScore, setSafetyScore] = useState(100);
 
+const [
+  warningCount,
+  setWarningCount
+] = useState(0);
+
+const [
+  emergencyMode,
+  setEmergencyMode
+] = useState(false);
+
+const [
+  recommendedAction,
+  setRecommendedAction
+] = useState(
+  "Continue Driving"
+);
+
   const [telemetryData, setTelemetryData] = useState({
   eyeMovement: 0,
   blinkRate: 18,
@@ -565,6 +595,12 @@ const [safetyScore, setSafetyScore] = useState(100);
   isYawning: false,
 isTalking: false,
 phoneDetected: false,
+warningCount: 0,
+
+emergencyMode: false,
+
+recommendedAction:
+  "Continue Driving",
 
 fatigueLevel: "Low",
 
@@ -935,6 +971,12 @@ setDriverFrame,
         setIsYawning,
         isTalking,
         setIsTalking,
+        warningCount,
+        setWarningCount,
+        emergencyMode,
+        setEmergencyMode,
+        recommendedAction,
+        setRecommendedAction,
         phoneDetected,
         setPhoneDetected,
         fatigueLevel,
