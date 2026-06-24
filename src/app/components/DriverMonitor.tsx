@@ -179,6 +179,7 @@ const liveStatusCards = [
 
   const initializedRef =
   useRef(false);
+  const lastWarningRef = useRef(0);
 useEffect(() => {
 
   const timer =
@@ -584,37 +585,137 @@ useEffect(() => {
 
 // }, [isDrowsy]);
 
+// useEffect(() => {
+
+//   if (!emergencyMode)
+//     return;
+
+//   setShowDangerAlert(
+//     true
+//   );
+
+//   playAlertSound(
+//     "critical"
+//   );
+
+//   speak(
+//     "Emergency mode activated. Pull over immediately.",
+//     "critical"
+//   );
+
+//   setTimeout(() => {
+
+//     setShowDangerAlert(
+//       false
+//     );
+
+//     setParkingAssistActive(
+//       true
+//     );
+
+//   }, 3000);
+
+// }, [emergencyMode]);
+
 useEffect(() => {
 
-  if (!emergencyMode)
+  if (
+    warningCount <=
+    lastWarningRef.current
+  ) {
     return;
+  }
 
-  setShowDangerAlert(
-    true
-  );
+  lastWarningRef.current =
+    warningCount;
 
-  playAlertSound(
-    "critical"
-  );
+  // WARNING 1
 
-  speak(
-    "Emergency mode activated. Pull over immediately.",
-    "critical"
-  );
+  if (warningCount === 1) {
 
-  setTimeout(() => {
+    addNotification({
+      ...demoNotifications
+        .drowsinessDetected,
+    });
+
+    playAlertSound(
+      "warning"
+    );
+
+    speak(
+      "Driver fatigue detected",
+    );
+  }
+
+  // WARNING 2
+
+  if (warningCount === 2) {
+
+    setShowDangerAlert(
+      true
+    );
+
+    playAlertSound(
+      "critical"
+    );
+
+    speak(
+      "Driver attention critical",
+      "critical"
+    );
+  }
+
+  // WARNING 3
+
+  if (
+    warningCount === 3 &&
+    emergencyMode
+  ) {
+
+    playAlertSound(
+      "critical"
+    );
+
+    speak(
+      "Emergency mode activated. Pull over immediately.",
+      "critical"
+    );
+
+    setTimeout(() => {
+
+      setShowDangerAlert(
+        false
+      );
+
+      setParkingAssistActive(
+        true
+      );
+
+    }, 3000);
+  }
+
+}, [
+  warningCount,
+  emergencyMode
+]);
+useEffect(() => {
+
+  if (
+    warningCount === 0
+  ) {
+
+    lastWarningRef.current = 0;
 
     setShowDangerAlert(
       false
     );
 
     setParkingAssistActive(
-      true
+      false
     );
+  }
 
-  }, 3000);
-
-}, [emergencyMode]);
+}, [warningCount]);
 
   if (isDriverMonitorMinimized) {
     return (
